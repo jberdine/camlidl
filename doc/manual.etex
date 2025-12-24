@@ -99,13 +99,17 @@ ident: ("A" \ldots "Z" || "a" \ldots "z" || "_")
 \end{syntax}
 
 \paragraph{Literals.}  Integer literals, character literals and string
-literals have the same syntax as in C.
+literals have the same syntax as in C, and quoted string literals as in
+OCaml are also supported.
 \begin{syntax}
 integer: ['-'] {'0' \ldots '9'}
          ['-'] '0x' {'0' \ldots '9' || 'a' \ldots 'f' || 'A' \ldots 'F'}
          ['-'] '0' {'0' \ldots '7'};
 character: "'" (regular-char || escape-char) "'";
-string: '"' {regular-char || escape-char} '"';
+string: '"' {regular-char || escape-char} '"'
+      | '{' quoted-string-id '|' {newline || any-char}
+        '|' quoted-string-id '}';
+quoted-string-id: { "a" \ldots "z" || "_" };
 escape-char: '\' ('b'||'n'||'r'||'t') 
            | '\' ('0'\ldots'7') ['0'\ldots'7'] ['0'\ldots'7'];
 \end{syntax}
