@@ -59,6 +59,11 @@ let ml_declaration oc td =
     | None ->
        fprintf oc "%s = %a\n" td.td_mlname out_ml_type td.td_type
 
+(* Check if typedef would produce an immediately cyclic definition
+ * (eg, type name = name) *)
+let is_cyclic td =
+  ml_td_name td = Some td.td_mlname
+
 (* Generate the C typedef corresponding to the typedef *)
 
 let c_declaration oc td =

@@ -69,3 +69,18 @@ Prefix_mytype Prefix_use_type([in] Prefix_mytype x);
 
 /* Function taking interface parameter */
 int Prefix_use_intf([in] Prefix_Super *intf);
+
+
+/* Test cyclic typedef detection */
+
+/* Not cyclic: different names even after prefix removal */
+typedef enum other { Prefix_X, Prefix_Y } Prefix_different;
+
+/* Cyclic via prefix removal */
+typedef enum tag { Prefix_A, Prefix_B } Prefix_tag;
+
+/* Cyclic via string type */
+typedef [string] const char * Prefix_string;
+
+/* Cyclic via bytes type */
+typedef [bytes] char * Prefix_bytes;
