@@ -67,7 +67,7 @@ type char_class = Narrow | Wide
 let rec classify_char = function
     Type_int((Char | UChar | Byte), _) -> Some Narrow
   | Type_int(UShort, _) -> Some Wide
-  | Type_named(modname, tyname) -> classify_char (expand_typedef tyname)
+  | Type_named{nd_name} -> classify_char (expand_typedef nd_name)
   | Type_const ty -> classify_char ty
   | _ -> None
 
@@ -167,16 +167,16 @@ let rec normalize_type = function
       Type_union(enter_union ud, discr)
   | Type_enum (en, attr) ->
       Type_enum(enter_enum en, attr)
-  | Type_named(_, s) ->
+  | Type_named{nd_name} ->
       begin try
-        let itf = Hashtbl.find intfs s in
+        let itf = Hashtbl.find intfs nd_name in
         Type_interface(itf.intf_mod, itf.intf_name)
       with Not_found ->
       try
-        let td = Hashtbl.find typedefs s in
-        Type_named(td.td_mod, td.td_name)
+        let td = Hashtbl.find typedefs nd_name in
+        Type_named{nd_name=td.td_name; nd_mod=td.td_mod}
       with Not_found ->
-        error("Unknown type name " ^ s)
+        error("Unknown type name " ^ nd_name)
       end
   | Type_const ty ->
       Type_const(normalize_type ty)

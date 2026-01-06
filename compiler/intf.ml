@@ -264,13 +264,13 @@ let emit_callback_wrapper oc intf meth =
              label (num_ins + 1);
   (* Check if exception occurred *)
   begin match meth.fun_res with
-    Type_named(_, "HRESULT") ->
+    Type_named{nd_name="HRESULT"} ->
       iprintf pc "if (Is_exception_result(_vres))\n";
       iprintf pc "  return camlidl_result_exception(\"%s.%s\", \
                              Extract_exception(_vres));\n"
                  !module_name !current_function;
       iprintf pc "_res = S_OK;\n"
-  | Type_named(_, ("HRESULT_int" | "HRESULT_bool")) ->
+  | Type_named{nd_name=("HRESULT_int" | "HRESULT_bool")} ->
       iprintf pc "if (Is_exception_result(_vres))\n";
       iprintf pc "  return camlidl_result_exception(\"%s.%s\", \
                              Extract_exception(_vres));\n"

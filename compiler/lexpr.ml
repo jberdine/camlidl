@@ -103,11 +103,11 @@ let rec cast_value ty v =
   | Type_pointer(_, Type_int((Char|UChar|SChar), _)) |
     Type_array({is_string = true}, _) ->
       Cst_string(string_val v)
-  | Type_named(modname, tyname) ->
+  | Type_named{nd_name} ->
       let ty' =
-        try !expand_typedef tyname
+        try !expand_typedef nd_name
       with Not_found ->
-        error (sprintf "unknown type name %s" tyname) in
+        error (sprintf "unknown type name %s" nd_name) in
       cast_value ty' v
   | Type_const ty' ->
       cast_value ty' v
@@ -265,8 +265,8 @@ let rec tstype trail = function
       add_string b "union "; add_string b ud.ud_name; add_string b trail
   | Type_enum (en, attr) ->
       add_string b "int"; add_string b trail
-  | Type_named(modl, ty_name) ->
-      add_string b ty_name; add_string b trail
+  | Type_named{nd_name} ->
+      add_string b nd_name; add_string b trail
   | Type_pointer(attr, (Type_array(_,_) as ty)) ->
       tstype (sprintf "(*%s)" trail) ty
   | Type_pointer(attr, ty) ->

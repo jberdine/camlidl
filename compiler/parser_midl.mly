@@ -299,7 +299,8 @@ simple_type_spec:
   | UNSIGNED INT64_COMPAT                       { make_int UHyper }
   | SIGNED INT64_COMPAT                         { make_int Hyper }
   | VOID                                        { Type_void }
-  | TYPEIDENT                                   { Type_named("", $1) }
+  | TYPEIDENT                                   { Type_named{nd_name=$1;
+                                                             nd_mod=""} }
   | WCHAR_T                                     { wchar_t_type() }
   | HANDLE_T                                    { handle_t_type() }
   | integer_fixed                               { make_int $1 }

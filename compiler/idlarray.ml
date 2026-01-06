@@ -72,7 +72,7 @@ let array_ml_to_c ml_to_c oc onstack pref attr ty_elt v c =
                              Lexpr.output (pref, re) v
         end
     | Some n ->
-        let size = new_c_variable (Type_named("", "mlsize_t")) in
+        let size = new_c_variable (Type_named{nd_name="mlsize_t"; nd_mod=""}) in
         iprintf oc "%s = caml_string_length(%s);\n" size v;    
         iprintf oc
             "if (%s >= %d) caml_invalid_argument(\"%s\");\n"
@@ -85,7 +85,7 @@ let array_ml_to_c ml_to_c oc onstack pref attr ty_elt v c =
         end
   end else begin
     (* Determine actual size of ML array *)
-    let size = new_c_variable (Type_named("", "mlsize_t")) in
+    let size = new_c_variable (Type_named{nd_name="mlsize_t"; nd_mod=""}) in
     if is_float_type ty_elt
     then iprintf oc "%s = Wosize_val(%s) / Double_wosize;\n" size v
     else iprintf oc "%s = Wosize_val(%s);\n" size v;
@@ -107,7 +107,7 @@ let array_ml_to_c ml_to_c oc onstack pref attr ty_elt v c =
                 (Lexpr.eval_int n) !current_function
     end;
     (* Copy the array elements *)
-    let idx = new_c_variable (Type_named("", "mlsize_t")) in
+    let idx = new_c_variable (Type_named{nd_name="mlsize_t"; nd_mod=""}) in
     begin match attr with
       {bound = Some n; size = None} ->
         iprintf oc "for (%s = 0; %s < %d; %s++) {\n"
@@ -149,7 +149,7 @@ let array_c_to_ml c_to_ml oc pref attr ty_elt c v =
           let n = Lexpr.eval_int le in
           (n, string_of_int n)
       | {null_terminated = true} ->
-          let sz = new_c_variable (Type_named("", "mlsize_t")) in
+          let sz = new_c_variable (Type_named{nd_name="mlsize_t"; nd_mod=""}) in
           iprintf oc "%s = camlidl_ptrarray_size((void **) %s);\n" sz c;
           (max_int, sz)
       | _ ->
@@ -167,7 +167,7 @@ let array_c_to_ml c_to_ml oc pref attr ty_elt c v =
       increase_indent()
     end;
     (* Copy elements of C array *)
-    let idx = new_c_variable (Type_named("", "mlsize_t")) in
+    let idx = new_c_variable (Type_named{nd_name="mlsize_t"; nd_mod=""}) in
     iprintf oc "for (%s = 0; %s < %s; %s++) {\n" idx idx size idx;
     increase_indent();
     if is_float_type ty_elt then

@@ -362,12 +362,12 @@ let make_typedef attrs tybase decls =
     [] -> (* didn't find a name, use original decls *)
       List.map (merge_definition tybase) (List.rev past)
   | decl :: rem ->
-      match decl (Type_named("%", "%")) with
-        (name, Type_named("%", "%")) ->
+      match decl (Type_named{nd_name="%"; nd_mod="%"}) with
+        (name, Type_named{nd_name="%"; nd_mod="%"}) ->
         (* Found a name, define it first, and define the others in terms
            of this name *)
           merge_definition tybase decl ::
-          List.map (merge_definition (Type_named("", name)))
+          List.map (merge_definition (Type_named{nd_name=name; nd_mod=""}))
                    (List.rev past @ rem)
       | (_, _) ->
           split_decls (decl :: past) rem in

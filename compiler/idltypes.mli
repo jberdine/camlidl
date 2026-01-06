@@ -33,7 +33,7 @@ type idltype =
   | Type_struct of struct_decl
   | Type_union of union_decl * union_attributes
   | Type_enum of enum_decl * enum_attributes
-  | Type_named of string * string (* module name, type name *)
+  | Type_named of named_decl
   | Type_interface of string * string (* module name, interface name *)
   | Type_const of idltype
 
@@ -69,6 +69,9 @@ and union_case =
 
 and enum_const =
   { const_name: string; const_mlname: string; const_val: lexpr option }
+
+and named_decl =
+  { nd_name: string; nd_mod: string }
 
 and struct_decl =
   { sd_name: string; sd_mlname: string; sd_mod: string; mutable sd_stamp: int;

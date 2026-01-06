@@ -75,7 +75,7 @@ let rec split_in_out = function
 (* Determine if a typedef represents an error code *)
 
 let rec is_errorcode = function
-    Type_named(modl, name) -> (!Typedef.find name).td_errorcode
+    Type_named{nd_name} -> (!Typedef.find nd_name).td_errorcode
   | Type_pointer(kind, ty) -> is_errorcode ty
   | Type_const ty -> is_errorcode ty
   | _ -> false
@@ -173,8 +173,8 @@ let output_dealloc oc dealloc =
 
 let rec call_error_check oc name ty =
   match ty with
-    Type_named(modl, ty_name) ->
-      begin match !Typedef.find ty_name with
+    Type_named{nd_name} ->
+      begin match !Typedef.find nd_name with
         {td_errorcheck = Some fn} -> iprintf oc "%s(%s);\n" fn name
       | _ -> ()
       end

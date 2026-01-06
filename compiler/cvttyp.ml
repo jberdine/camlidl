@@ -56,8 +56,8 @@ let rec out_c_decl oc (id, ty) =
       if en.en_name <> ""
       then fprintf oc "int %s" id
       else fprintf oc "%a %s" out_enum en id
-  | Type_named(modl, ty_name) ->
-      fprintf oc "%s %s" ty_name id
+  | Type_named{nd_name} ->
+      fprintf oc "%s %s" nd_name id
   | Type_pointer(attr, ty) ->
       out_c_decl oc (sprintf "*%s" id, ty)
   | Type_array(attr, ty) ->
@@ -167,14 +167,14 @@ let rec out_ml_type oc ty =
   | Type_int(_, I64) -> output_string oc "int64"
   | Type_float | Type_double -> output_string oc "float"
   | Type_void -> output_string oc "void"
-  | Type_named(modl, name) ->
+  | Type_named{nd_name; nd_mod} ->
       if !generating_mli then
-        match !findopt_hidden_typedef name with
+        match !findopt_hidden_typedef nd_name with
         | Some (Some mltype_str, _) -> output_string oc mltype_str
         | Some (None, ty) -> out_ml_type oc ty
-        | None -> out_mltype_name oc (modl, name)
+        | None -> out_mltype_name oc (nd_mod, nd_name)
       else
-        out_mltype_name oc (modl, name)
+        out_mltype_name oc (nd_mod, nd_name)
   | Type_struct sd ->
       out_mltype_stamp oc "struct" sd.sd_mod sd.sd_mlname sd.sd_stamp
   | Type_union(ud, discr) ->
@@ -226,7 +226,7 @@ let out_ml_types oc sep types =
 
 (* Expand typedef and const in type *)
 let rec scrape_type = function
-    Type_named(modname, tyname) -> scrape_type (!Lexpr.expand_typedef tyname)
+    Type_named{nd_name} -> scrape_type (!Lexpr.expand_typedef nd_name)
   | Type_const ty -> scrape_type ty
   | ty -> ty
 
