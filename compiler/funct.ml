@@ -115,7 +115,7 @@ let ml_view fundecl =
 
 let ml_declaration oc fundecl =
   let (ins, outs) = ml_view fundecl in
-  fprintf oc "external %s : " (String.uncapitalize_ascii fundecl.fun_mlname);
+  fprintf oc "external %s : " fundecl.fun_mlname;
   out_ml_types oc "->" ins;
   fprintf oc " -> ";
   out_ml_types oc "*" outs;

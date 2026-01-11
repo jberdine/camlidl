@@ -71,6 +71,29 @@ let rec classify_char = function
   | Type_const ty -> classify_char ty
   | _ -> None
 
+(* String prefix removal for -remove-prefix option *)
+
+(* case-insensitive variant of String.starts_with *)
+let starts_with_insensitive ~prefix s =
+  let len_s = String.length s
+  and len_pre = String.length prefix in
+  let rec aux i =
+    if i = len_pre then true
+    else if Char.lowercase_ascii (String.get s i) <>
+            Char.lowercase_ascii (String.get prefix i) then false
+    else aux (i + 1)
+  in len_s >= len_pre && aux 0
+
+(* For identifiers that must be lowercase in OCaml *)
+let drop_prefix_uncap name =
+  let prefix = !Clflags.remove_prefix in
+  let prefix_len = String.length prefix in
+  let name' =
+    if prefix_len > 0 && starts_with_insensitive ~prefix name
+    then String.sub name prefix_len (String.length name - prefix_len)
+    else name in
+  String.uncapitalize_ascii name'
+
 (* Generic function to handle declarations and definitions of struct,
    unions, enums and interfaces *)
 
@@ -247,9 +270,14 @@ let rec validate_length_is params mode = function
 let normalize_fundecl fd =
   current_function := fd.fun_name;
   in_fundecl := true;
+  let fun_mlname =
+    if fd.fun_mlname = fd.fun_name
+    then drop_prefix_uncap fd.fun_mlname
+    else fd.fun_mlname in
   let res =
     { fd with
       fun_mod = !module_name;
+      fun_mlname;
       fun_res = normalize_type fd.fun_res;
       fun_params =
         List.map (fun (n, io, ty) -> (n,io, normalize_type ty)) fd.fun_params }

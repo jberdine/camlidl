@@ -264,6 +264,7 @@ normalize.cmo : \
     file.cmi \
     cvttyp.cmi \
     constdecl.cmi \
+    clflags.cmo \
     normalize.cmi
 normalize.cmx : \
     utils.cmx \
@@ -278,6 +279,7 @@ normalize.cmx : \
     file.cmx \
     cvttyp.cmx \
     constdecl.cmx \
+    clflags.cmx \
     normalize.cmi
 normalize.cmi : \
     file.cmi

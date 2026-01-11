@@ -76,7 +76,9 @@ let _ =
        "-prefix-all-labels", Arg.Set prefix_all_labels,
          "  Prefix all ML name of record labels with name of enclosing struct";
        "-keep-labels", Arg.Set keep_labels,
-         "  Do not prefix ML names of record labels, even if ambiguous"
+         "  Do not prefix ML names of record labels, even if ambiguous";
+       "-remove-prefix", Arg.Set_string remove_prefix,
+         "<prefix>  Remove <prefix> from names in generated ML code"
       ]
       process_file
       "Usage: camlidl [options]<.idl file> ... <.idl file>\nOptions are:\n"
