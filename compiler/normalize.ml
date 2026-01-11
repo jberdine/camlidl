@@ -174,7 +174,7 @@ let rec normalize_type = function
       with Not_found ->
       try
         let td = Hashtbl.find typedefs nd_name in
-        Type_named{nd_name=td.td_name; nd_mlname=td.td_name; nd_mod=td.td_mod}
+        Type_named{nd_name=td.td_name; nd_mlname=td.td_mlname; nd_mod=td.td_mod}
       with Not_found ->
         error("Unknown type name " ^ nd_name)
       end

@@ -124,7 +124,7 @@ let out_c_type oc ty = out_c_decl oc ("", ty)
 
 let out_mltype_name oc (modl, name) =
   if modl <> !module_name then fprintf oc "%s." (String.capitalize_ascii modl);
-  output_string oc (String.uncapitalize_ascii name)
+  output_string oc name
 
 (* Same, but use stamp if no name is provided *)
 
@@ -167,14 +167,14 @@ let rec out_ml_type oc ty =
   | Type_int(_, I64) -> output_string oc "int64"
   | Type_float | Type_double -> output_string oc "float"
   | Type_void -> output_string oc "void"
-  | Type_named{nd_name; nd_mod} ->
+  | Type_named{nd_name; nd_mlname; nd_mod} ->
       if !generating_mli then
         match !findopt_hidden_typedef nd_name with
         | Some (Some mltype_str, _) -> output_string oc mltype_str
         | Some (None, ty) -> out_ml_type oc ty
-        | None -> out_mltype_name oc (nd_mod, nd_name)
+        | None -> out_mltype_name oc (nd_mod, nd_mlname)
       else
-        out_mltype_name oc (nd_mod, nd_name)
+        out_mltype_name oc (nd_mod, nd_mlname)
   | Type_struct sd ->
       out_mltype_stamp oc "struct" sd.sd_mod sd.sd_mlname sd.sd_stamp
   | Type_union(ud, discr) ->

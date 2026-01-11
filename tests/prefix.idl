@@ -46,3 +46,6 @@ int other_function([in] int y);
 
 /* Function with prefixed mlname (should use mlname unchanged, even if prefixed) */
 [mlname(prefix_renamed_func)] int Prefix_renamed2([in] int z);
+
+/* Functions using prefixed types in signatures */
+Prefix_mytype Prefix_use_type([in] Prefix_mytype x);
