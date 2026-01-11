@@ -50,7 +50,7 @@ let update_size_variable svar oc pref size =
 
 (* Translation from an ML array [v] to a C array [c] *)
 
-let mlsize_t = Type_named{nd_name="mlsize_t"; nd_mod=""}
+let mlsize_t = Type_named{nd_name="mlsize_t"; nd_mlname="mlsize_t"; nd_mod=""}
 
 let array_ml_to_c ml_to_c oc onstack pref attr ty_elt v c =
   if attr.is_string || attr.is_bytes then begin

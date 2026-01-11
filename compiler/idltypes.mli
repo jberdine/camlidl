@@ -71,7 +71,7 @@ and enum_const =
   { const_name: string; const_mlname: string; const_val: lexpr option }
 
 and named_decl =
-  { nd_name: string; nd_mod: string }
+  { nd_name: string; nd_mlname: string; nd_mod: string }
 
 and struct_decl =
   { sd_name: string; sd_mlname: string; sd_mod: string; mutable sd_stamp: int;
