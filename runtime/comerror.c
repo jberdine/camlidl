@@ -28,6 +28,10 @@
 #include "camlidlruntime.h"
 #include "comstuff.h"
 
+CAMLnoreturn_start
+static void camlidl_raise_error(HRESULT errcode, char * who, char * msg)
+CAMLnoreturn_end;
+
 static void camlidl_raise_error(HRESULT errcode, char * who, char * msg)
 {
   static const value * com_error_exn = NULL;
@@ -74,6 +78,10 @@ void camlidl_error(HRESULT errcode, char * who, char * what)
   }
   camlidl_raise_error(errcode, who, what);
 }
+
+CAMLnoreturn_start
+static void camlidl_hresult_error(HRESULT errcode)
+CAMLnoreturn_end;
 
 static void camlidl_hresult_error(HRESULT errcode)
 {
