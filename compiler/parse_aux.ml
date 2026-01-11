@@ -267,11 +267,12 @@ let make_fun_declaration attrs ty_res name params quotes =
     | attr :: rem ->
           merge_attributes (apply_type_attribute ty attr) rem in
   let ty_res' = merge_attributes ty_res attrs in
+  let fun_mlname = match !mlname with Some n -> n | None -> !truename in
   { fun_name = !truename;
     fun_mod = "";
     fun_res = ty_res';
     fun_params = params;
-    fun_mlname = !mlname;
+    fun_mlname;
     fun_call = !call;
     fun_dealloc = !dealloc;
     fun_blocking = !blocking;

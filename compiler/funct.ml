@@ -30,7 +30,7 @@ type function_decl =
     fun_mod: string;
     fun_res: idltype;
     fun_params: (string * in_out * idltype) list;
-    fun_mlname: string option;
+    fun_mlname: string;
     fun_call: string option;
     fun_dealloc: string option;
     fun_blocking: bool;
@@ -113,12 +113,9 @@ let ml_view fundecl =
 
 (* Generate the ML declaration for a function *)
 
-let mlname fundecl =
-  match fundecl.fun_mlname with Some n -> n | None -> fundecl.fun_name
-
 let ml_declaration oc fundecl =
   let (ins, outs) = ml_view fundecl in
-  fprintf oc "external %s : " (String.uncapitalize_ascii (mlname fundecl));
+  fprintf oc "external %s : " (String.uncapitalize_ascii fundecl.fun_mlname);
   out_ml_types oc "->" ins;
   fprintf oc " -> ";
   out_ml_types oc "*" outs;

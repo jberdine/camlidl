@@ -24,7 +24,7 @@ type function_decl =
     fun_mod: string;
     fun_res: idltype;
     fun_params: (string * in_out * idltype) list;
-    fun_mlname: string option;
+    fun_mlname: string;
     fun_call: string option;
     fun_dealloc: string option;
     fun_blocking: bool;
