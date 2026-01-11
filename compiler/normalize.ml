@@ -289,7 +289,8 @@ let normalize_fundecl fd =
   res
 
 let normalize_constdecl cd =
-  { cd with cd_type = normalize_type cd.cd_type }
+  { cd with cd_mlname = drop_prefix_uncap cd.cd_mlname;
+            cd_type = normalize_type cd.cd_type }
   
 let enter_typedecl td =
   let td' =

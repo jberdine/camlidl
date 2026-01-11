@@ -1197,12 +1197,12 @@ Set the command that is executed to pre-process the source IDL files.
 The default is the C preprocessor.
 
 \item["-remove-prefix " \var{prefix}]
-Remove the given \var{prefix} from function names in the generated Caml
-code.  This is useful when the C library uses a prefix for namespacing
-(e.g. "foo_") that becomes redundant in Caml where the module name provides
-the namespace.  Prefix matching is case-insensitive: "-remove-prefix foo_"
-will match "Foo_bar", "FOO_BAR", and "foo_baz".  Names that do not start
-with the prefix are left unchanged.
+Remove the given \var{prefix} from constant names, function names in the
+generated Caml code.  This is useful when the C library uses a prefix for
+namespacing (e.g. "foo_") that becomes redundant in Caml where the module
+name provides the namespace.  Prefix matching is case-insensitive:
+"-remove-prefix foo_" will match "Foo_bar", "FOO_BAR", and "foo_baz".  Names
+that do not start with the prefix are left unchanged.
 
 \end{options}
 

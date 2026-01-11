@@ -373,7 +373,8 @@ let make_typedef attrs tybase decls =
   split_decls [] decls
 
 let make_const_decl attr ty name v =
-  { cd_name = name; cd_type = apply_type_attributes ty attr; cd_value = v }
+  { cd_name = name; cd_mlname = name;
+    cd_type = apply_type_attributes ty attr; cd_value = v }
 
 let update_int_default dfl arg =
   match arg with
