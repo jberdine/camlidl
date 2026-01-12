@@ -210,8 +210,8 @@ and enter_union ud =
   process_declarator "union" unions ud.ud_name ud
     (fun ud -> ud.ud_cases)
     (fun () ->
-      { ud_name = ud.ud_name; ud_mod = !module_name;
-        ud_stamp = 0; ud_cases = [] })
+      { ud_name = ud.ud_name; ud_mlname = ud.ud_mlname;
+        ud_mod = !module_name; ud_stamp = 0; ud_cases = [] })
     (fun ud' ud ->
       ud'.ud_stamp <- newstamp();
       ud'.ud_cases <- List.map normalize_case ud.ud_cases)

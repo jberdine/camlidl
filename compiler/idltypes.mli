@@ -72,7 +72,7 @@ and struct_decl =
      mutable sd_fields: field list }
 
 and union_decl =
-  { ud_name: string; ud_mod: string; mutable ud_stamp: int;
+  { ud_name: string; ud_mlname: string; ud_mod: string; mutable ud_stamp: int;
     mutable ud_cases: union_case list }
 
 and enum_decl =

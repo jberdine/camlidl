@@ -169,7 +169,7 @@ component:
         { [Comp_structdecl {sd_name = $3; sd_mlname = $3; sd_mod = "";
                             sd_stamp = 0; sd_fields = []}] }
   | attributes UNION opt_ident SEMI
-        { [Comp_uniondecl {ud_name = $3; ud_mod = "";
+        { [Comp_uniondecl {ud_name = $3; ud_mlname = $3; ud_mod = "";
                            ud_stamp = 0; ud_cases = []}] }
   | fun_decl SEMI
         { [Comp_fundecl $1] }
@@ -264,8 +264,8 @@ type_spec:
   | struct_declarator
         { Type_struct $1 }
   | UNION opt_ident
-        { Type_union({ud_name=$2; ud_mod = ""; ud_stamp=0; ud_cases=[]},
-                      no_switch) }
+        { Type_union({ud_name=$2; ud_mlname=$2; ud_mod = ""; ud_stamp=0;
+                      ud_cases=[]}, no_switch) }
   | union_declarator
         { Type_union($1, no_switch) }
   | ENUM opt_ident
@@ -397,7 +397,8 @@ field_declarator:
 
 union_declarator:
   | UNION opt_ident LBRACE union_body RBRACE
-        { {ud_name = $2; ud_mod = ""; ud_stamp = 0; ud_cases = List.rev $4} }
+        { {ud_name = $2; ud_mlname = $2; ud_mod = ""; ud_stamp = 0;
+           ud_cases = List.rev $4} }
 ;
 union_body:
     union_encaps_body                                   { $1 }
