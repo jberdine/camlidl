@@ -27,11 +27,11 @@ open Union
 let ml_declaration oc ud =
   if ud.ud_name = ""
   then fprintf oc "union_%d =\n" ud.ud_stamp
-  else fprintf oc "%s =\n" (String.uncapitalize_ascii ud.ud_name);
+  else fprintf oc "%s =\n" ud.ud_mlname;
   let out_constr oc c =
     if c = "default" then
-      if ud.ud_name <> ""
-      then fprintf oc "Default_%s" ud.ud_name
+      if ud.ud_mlname <> ""
+      then fprintf oc "Default_%s" ud.ud_mlname
       else fprintf oc "Default_%d" ud.ud_stamp
     else
       output_string oc (String.capitalize_ascii c) in

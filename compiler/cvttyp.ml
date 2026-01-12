@@ -132,7 +132,7 @@ let out_mltype_stamp oc kind modl name stamp =
   if modl <> !module_name then fprintf oc "%s." (String.capitalize_ascii modl);
   if name = ""
   then fprintf oc "%s_%d" kind stamp
-  else output_string oc (String.uncapitalize_ascii name)
+  else output_string oc name
 
 (* Convert an IDL type to an ML bigarray element type *)
 
@@ -178,7 +178,7 @@ let rec out_ml_type oc ty =
   | Type_struct sd ->
       out_mltype_stamp oc "struct" sd.sd_mod sd.sd_mlname sd.sd_stamp
   | Type_union(ud, discr) ->
-      out_mltype_stamp oc "union" ud.ud_mod ud.ud_name ud.ud_stamp
+      out_mltype_stamp oc "union" ud.ud_mod ud.ud_mlname ud.ud_stamp
   | Type_enum (en, attr) ->
       out_mltype_stamp oc "enum" en.en_mod en.en_mlname en.en_stamp;
       if attr.bitset then fprintf oc " list"
