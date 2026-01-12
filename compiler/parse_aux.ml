@@ -298,7 +298,7 @@ let make_discriminated_union name union_name switch_name switch_type body =
   let ty_union =
     Type_union({ud_name; ud_mod = ""; ud_stamp = 0; ud_cases = body},
                {discriminant = Expr_ident switch_name}) in
-  { sd_name = name; sd_mod = ""; sd_stamp = 0;
+  { sd_name = name; sd_mlname = name; sd_mod = ""; sd_stamp = 0;
     sd_fields = [ {field_name = switch_name; field_mlname = switch_name;
                    field_typ = switch_type};
                   {field_name = union_name; field_mlname = union_name;
