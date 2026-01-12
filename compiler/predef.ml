@@ -19,7 +19,7 @@ open Typedef
 open Intf
 
 let hresult =
-  { td_name = "HRESULT"; td_mod = "Com";
+  { td_name = "HRESULT"; td_mlname = "HRESULT"; td_mod = "Com";
     td_type = Type_int(Long, Iunboxed);
     td_abstract = false;
     td_c2ml = None; td_ml2c = None;
@@ -30,7 +30,7 @@ let hresult =
     td_hidden = false }
 
 let hresult_bool =
-  { td_name = "HRESULT_bool"; td_mod = "Com";
+  { td_name = "HRESULT_bool"; td_mlname = "HRESULT_bool"; td_mod = "Com";
     td_type = Type_int(Long, Iunboxed);
     td_abstract = false;
     td_c2ml = None; td_ml2c = None;
@@ -41,7 +41,7 @@ let hresult_bool =
     td_hidden = false }
 
 let hresult_int =
-  { td_name = "HRESULT_int"; td_mod = "Com";
+  { td_name = "HRESULT_int"; td_mlname = "HRESULT_int"; td_mod = "Com";
     td_type = Type_int(Long, Iunboxed);
     td_abstract = false;
     td_c2ml = None; td_ml2c = None;
@@ -52,7 +52,7 @@ let hresult_int =
     td_hidden = false }
 
 let bstr =
-  { td_name = "BSTR"; td_mod = "Com";
+  { td_name = "BSTR"; td_mlname = "BSTR"; td_mod = "Com";
     td_type = Type_int(Long, Iunboxed);
     td_abstract = false;
     td_c2ml = None; td_ml2c = None;

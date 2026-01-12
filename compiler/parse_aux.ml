@@ -345,7 +345,7 @@ let make_typedef attrs tybase decls =
   let merge_definition tybase decl =
     let (name, ty) = decl tybase in
     type_names := StringSet.add name !type_names;
-    let td = {td_name = name; td_mod = "";
+    let td = {td_name = name; td_mlname = name; td_mod = "";
               td_type = Type_void; (* dummy *)
               td_abstract = false; td_mltype = None;
               td_c2ml = None; td_ml2c = None;
