@@ -19,12 +19,12 @@ typedef struct {
   [mlname(explicit_field)] int Prefix_field3;
 } Prefix_mystruct;
 
-/* Enum with prefixed name */
+/* Enum with prefixed name and constants */
 typedef enum Prefix__color {
-  Red,
-  Green,
-  Blue,
-  Color
+  Prefix_Red,
+  Prefix_Green,
+  Prefix_Blue,
+  Other_Color
 } Prefix_color;
 
 /* Function with prefix */

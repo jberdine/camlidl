@@ -453,9 +453,9 @@ enum_cases:
 ;
 enum_case:
     ident
-      { {const_name = $1; const_val = None} }
+      { {const_name = $1; const_mlname = $1; const_val = None} }
   | ident EQUAL lexpr
-      { {const_name = $1; const_val = Some $3} }
+      { {const_name = $1; const_mlname = $1; const_val = Some $3} }
 ;
 opt_comma:
     COMMA                                               { () }

@@ -94,6 +94,16 @@ let drop_prefix_uncap name =
     else name in
   String.uncapitalize_ascii name'
 
+(* For variant constructors that must be capitalized in OCaml *)
+let drop_prefix_cap name =
+  let prefix = !Clflags.remove_prefix in
+  let prefix_len = String.length prefix in
+  let name' =
+    if prefix_len > 0 && starts_with_insensitive ~prefix name
+    then String.sub name prefix_len (String.length name - prefix_len)
+    else name in
+  String.capitalize_ascii name'
+
 (* Generic function to handle declarations and definitions of struct,
    unions, enums and interfaces *)
 
@@ -209,6 +219,8 @@ and enter_union ud =
       all_comps := Comp_uniondecl ud :: !all_comps)
 
 and enter_enum en =
+  let normalize_const c =
+    { c with const_mlname = drop_prefix_cap c.const_name } in
   process_declarator "enum" enums en.en_name en
     (fun en -> en.en_consts)
     (fun () ->
@@ -216,7 +228,7 @@ and enter_enum en =
         en_mod = !module_name; en_stamp = 0; en_consts = [] })
     (fun en' en ->
       en'.en_stamp <- newstamp();
-      en'.en_consts <- en.en_consts)
+      en'.en_consts <- List.map normalize_const en.en_consts)
     (fun en ->
       all_comps := Comp_enumdecl en :: !all_comps)
 

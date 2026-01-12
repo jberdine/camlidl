@@ -65,7 +65,7 @@ and union_case =
   { case_labels: string list; case_field: field option }
 
 and enum_const =
-  { const_name: string; const_val: lexpr option }
+  { const_name: string; const_mlname: string; const_val: lexpr option }
 
 and struct_decl =
   { sd_name: string; sd_mlname: string; sd_mod: string; mutable sd_stamp: int;

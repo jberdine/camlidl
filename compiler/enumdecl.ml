@@ -29,7 +29,7 @@ let ml_declaration oc en =
   then fprintf oc "enum_%d =\n" en.en_stamp
   else fprintf oc "%s =\n" en.en_mlname;
   List.iter
-    (fun c -> fprintf oc "  | %s\n" (String.capitalize_ascii c.const_name))
+    (fun c -> fprintf oc "  | %s\n" c.const_mlname)
     en.en_consts
 
 (* Convert an IDL enum declaration to a C enum declaration *)

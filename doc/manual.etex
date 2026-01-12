@@ -1198,12 +1198,13 @@ The default is the C preprocessor.
 
 \item["-remove-prefix " \var{prefix}]
 Remove the given \var{prefix} from constant names, struct names, struct
-field names, enum names, type names, function names in the generated Caml
-code.  This is useful when the C library uses a prefix for namespacing
-(e.g. "foo_") that becomes redundant in Caml where the module name
-provides the namespace.  Prefix matching is case-insensitive:
-"-remove-prefix foo_" will match "Foo_bar", "FOO_BAR", and "foo_baz".
-Names that do not start with the prefix are left unchanged.
+field names, enum names, enum constructor names, type names, function
+names in the generated Caml code.  This is useful when the C library uses
+a prefix for namespacing (e.g. "foo_") that becomes redundant in Caml
+where the module name provides the namespace.  Prefix matching is
+case-insensitive: "-remove-prefix foo_" will match "Foo_bar", "FOO_BAR",
+and "foo_baz".  Names that do not start with the prefix are left
+unchanged.
 
 \end{options}
 
