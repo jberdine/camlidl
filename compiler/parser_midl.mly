@@ -269,8 +269,8 @@ type_spec:
   | union_declarator
         { Type_union($1, no_switch) }
   | ENUM opt_ident
-        { Type_enum({en_name=$2; en_mod = ""; en_stamp=0; en_consts=[]},
-                    no_enum_attr) }
+        { Type_enum({en_name=$2; en_mlname=$2; en_mod = ""; en_stamp=0;
+                     en_consts=[]}, no_enum_attr) }
   | enum_declarator
         { Type_enum($1, no_enum_attr) }
   | CONST type_spec
@@ -444,7 +444,8 @@ opt_field_declarator:
 
 enum_declarator:
     ENUM opt_ident LBRACE enum_cases opt_comma RBRACE
-         { {en_name = $2; en_mod = ""; en_stamp = 0; en_consts = List.rev $4} }
+         { {en_name = $2; en_mlname = $2; en_mod = ""; en_stamp = 0;
+            en_consts = List.rev $4} }
 ;
 enum_cases:
     enum_case                                           { [$1] }

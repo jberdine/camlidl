@@ -212,8 +212,8 @@ and enter_enum en =
   process_declarator "enum" enums en.en_name en
     (fun en -> en.en_consts)
     (fun () ->
-      { en_name = en.en_name; en_mod = !module_name;
-        en_stamp = 0; en_consts = [] })
+      { en_name = en.en_name; en_mlname = en.en_mlname;
+        en_mod = !module_name; en_stamp = 0; en_consts = [] })
     (fun en' en ->
       en'.en_stamp <- newstamp();
       en'.en_consts <- en.en_consts)

@@ -76,7 +76,7 @@ and union_decl =
     mutable ud_cases: union_case list }
 
 and enum_decl =
-  { en_name: string; en_mod: string; mutable en_stamp: int;
+  { en_name: string; en_mlname: string; en_mod: string; mutable en_stamp: int;
     mutable en_consts: enum_const list }
 
 and lexpr =
