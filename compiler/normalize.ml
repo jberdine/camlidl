@@ -173,7 +173,11 @@ let rec normalize_type = function
   | ty -> ty
 
 and normalize_field f =
-  {f with field_typ = normalize_type f.field_typ}
+  let field_mlname =
+    if f.field_mlname = f.field_name
+    then drop_prefix_uncap f.field_mlname
+    else f.field_mlname in
+  {f with field_typ = normalize_type f.field_typ; field_mlname}
 
 and normalize_case c =
   match c.case_field with
