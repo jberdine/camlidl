@@ -184,8 +184,8 @@ and enter_struct sd =
   process_declarator "struct" structs sd.sd_name sd
     (fun sd -> sd.sd_fields)
     (fun () ->
-      { sd_name = sd.sd_name; sd_mlname = sd.sd_mlname; sd_mod = !module_name;
-        sd_stamp = 0; sd_fields = [] })
+      { sd_name = sd.sd_name; sd_mlname = drop_prefix_uncap sd.sd_name;
+        sd_mod = !module_name; sd_stamp = 0; sd_fields = [] })
     (fun sd' sd ->
       sd'.sd_stamp <- newstamp();
       sd'.sd_fields <- List.map normalize_field sd.sd_fields)

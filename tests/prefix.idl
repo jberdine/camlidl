@@ -12,6 +12,12 @@ typedef int Prefix_mytype;
 /* Typedef without prefix (should be unchanged) */
 typedef int other_type;
 
+/* Struct with prefixed name */
+typedef struct Prefix__mystruct {
+  int field1;
+  int field2;
+} Prefix_mystruct;
+
 /* Function with prefix */
 int Prefix_operation([in] int x);
 

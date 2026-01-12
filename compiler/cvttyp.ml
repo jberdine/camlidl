@@ -176,7 +176,7 @@ let rec out_ml_type oc ty =
       else
         out_mltype_name oc (modl, name)
   | Type_struct sd ->
-      out_mltype_stamp oc "struct" sd.sd_mod sd.sd_name sd.sd_stamp
+      out_mltype_stamp oc "struct" sd.sd_mod sd.sd_mlname sd.sd_stamp
   | Type_union(ud, discr) ->
       out_mltype_stamp oc "union" ud.ud_mod ud.ud_name ud.ud_stamp
   | Type_enum (en, attr) ->
