@@ -180,7 +180,7 @@ let rec out_ml_type oc ty =
   | Type_union(ud, discr) ->
       out_mltype_stamp oc "union" ud.ud_mod ud.ud_name ud.ud_stamp
   | Type_enum (en, attr) ->
-      out_mltype_stamp oc "enum" en.en_mod en.en_name en.en_stamp;
+      out_mltype_stamp oc "enum" en.en_mod en.en_mlname en.en_stamp;
       if attr.bitset then fprintf oc " list"
   | Type_pointer(kind, ty) ->
       begin match kind with
