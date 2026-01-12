@@ -294,7 +294,8 @@ let normalize_constdecl cd =
   
 let enter_typedecl td =
   let td' =
-    { td with td_mod = !module_name;
+    { td with td_mlname = drop_prefix_uncap td.td_name;
+              td_mod = !module_name;
               td_type = if td.td_abstract
                         then td.td_type
                         else normalize_type td.td_type } in
