@@ -44,13 +44,13 @@ let out_method_type oc meth =
 (* Print the ML abstract type identifying the interface *)
 
 let ml_declaration oc intf =
-  fprintf oc "%s\n" (String.uncapitalize_ascii intf.intf_name)
+  fprintf oc "%s\n" intf.intf_mlname
 
 (* Declare the class *)
 
 let ml_class_declaration oc intf =
-  let mlintf = String.uncapitalize_ascii intf.intf_name in
-  let mlsuper = String.uncapitalize_ascii intf.intf_super.intf_name in
+  let mlintf = intf.intf_mlname in
+  let mlsuper = intf.intf_super.intf_mlname in
   fprintf oc "class %s_class :\n" mlintf;
   fprintf oc "  %s Com.interface ->\n" mlintf;
   fprintf oc "    object\n";
@@ -74,7 +74,7 @@ let ml_class_declaration oc intf =
   fprintf oc "val %s_of_%s : %s Com.interface -> %a Com.interface\n\n"
              mlsuper mlintf mlintf
              out_mltype_name (intf.intf_super.intf_mod,
-                              intf.intf_super.intf_name)
+                              intf.intf_super.intf_mlname)
 
 (* Declare the interface in C *)
 
@@ -160,8 +160,8 @@ let c_declaration oc intf =
 (* Define the wrapper classes *)
 
 let ml_class_definition oc intf =
-  let intfname = String.uncapitalize_ascii intf.intf_name in
-  let supername = String.uncapitalize_ascii intf.intf_super.intf_name in
+  let intfname = intf.intf_mlname in
+  let supername = intf.intf_super.intf_mlname in
   (* Define the IID *)
   if intf.intf_uid <> "" then
     fprintf oc "let iid_%s = Com._parse_iid \"%s\"\n"
@@ -170,7 +170,7 @@ let ml_class_definition oc intf =
   fprintf oc "let %s_of_%s (intf : %s Com.interface) = (Obj.magic intf : %a Com.interface)\n\n"
              supername intfname intfname
              out_mltype_name (intf.intf_super.intf_mod,
-                              intf.intf_super.intf_name);
+                              intf.intf_super.intf_mlname);
   (* Declare the C wrappers for invoking the methods from Caml *)
   let self_type =
     Type_pointer(Ref,
@@ -183,7 +183,7 @@ let ml_class_definition oc intf =
           fun_mod = intf.intf_mod;
           fun_res = meth.fun_res;
           fun_params = ("this", In, self_type) :: meth.fun_params;
-          fun_mlname = sprintf "%s_%s" intf.intf_name meth.fun_mlname;
+          fun_mlname = sprintf "%s_%s" intf.intf_mlname meth.fun_mlname;
           fun_call = None;
           fun_dealloc = None;
           fun_blocking = false;

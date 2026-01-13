@@ -210,8 +210,8 @@ let rec out_ml_type oc ty =
         out_ml_type ty (ml_bigarray_kind ty) layout typeconstr;
       if attr.bigarray_maybe_null
       then fprintf oc " option"
-  | Type_interface{id_name; id_mod} ->
-     fprintf oc "%a Com.interface" out_mltype_name (id_mod, id_name)
+  | Type_interface{id_mlname; id_mod} ->
+      fprintf oc "%a Com.interface" out_mltype_name (id_mod, id_mlname)
   | Type_const ty' ->
       out_ml_type oc ty'
 

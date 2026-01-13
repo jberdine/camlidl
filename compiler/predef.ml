@@ -63,13 +63,13 @@ let bstr =
     td_hidden = false }
 
 let rec iunknown =
-  { intf_name = "IUnknown"; intf_mlname = "IUnknown"; intf_mod = "Com";
+  { intf_name = "IUnknown"; intf_mlname = "iUnknown"; intf_mod = "Com";
     intf_super = iunknown;
     intf_methods = [];
     intf_uid = "00000000-0000-0000-C000-000000000046" }
 
 let idispatch =
-  { intf_name = "IDispatch"; intf_mlname = "IDispatch"; intf_mod = "Com";
+  { intf_name = "IDispatch"; intf_mlname = "iDispatch"; intf_mod = "Com";
     intf_super = iunknown;
     intf_methods = [];
     intf_uid = "00020400-0000-0000-C000-000000000046" }

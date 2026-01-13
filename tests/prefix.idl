@@ -49,3 +49,20 @@ int other_function([in] int y);
 
 /* Functions using prefixed types in signatures */
 Prefix_mytype Prefix_use_type([in] Prefix_mytype x);
+
+/* Interface with prefixed name */
+[object] interface Prefix_Super : IUnknown {
+  int id();
+}
+
+/* Interface with prefixed name and super */
+[object] interface Prefix_Intf : Prefix_Super {
+  /* Method */
+  int meth([in] int x);
+
+  /* Method using prefixed types in signatures */
+  Prefix_mytype use_type_meth([in] Prefix_mytype x);
+}
+
+/* Function taking interface parameter */
+int Prefix_use_intf([in] Prefix_Super *intf);
