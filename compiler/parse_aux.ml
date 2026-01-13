@@ -293,8 +293,9 @@ let make_fields attrs tybase decls =
   List.map (make_field attrs tybase) decls
 
 let make_discriminated_union name union_name switch_name switch_type body =
+  let ud_name = name ^ "_" ^ union_name in
   let ty_union =
-    Type_union({ud_name = ""; ud_mod = ""; ud_stamp = 0; ud_cases = body},
+    Type_union({ud_name; ud_mod = ""; ud_stamp = 0; ud_cases = body},
                {discriminant = Expr_ident switch_name}) in
   { sd_name = name; sd_mod = ""; sd_stamp = 0;
     sd_fields = [ {field_name = switch_name; field_mlname = switch_name;

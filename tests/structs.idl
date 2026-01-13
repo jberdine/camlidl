@@ -67,3 +67,8 @@ struct su1
     } data;
 };
 
+union su2 switch(int tag) inner {                            
+    case FLOAT_ARRAY: float f;                                   
+    case DOUBLE_ARRAY: double d;                                 
+    case OTHER: int i;                                           
+};                                                         
