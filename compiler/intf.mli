@@ -19,6 +19,7 @@ open Funct
 
 type interface =
   { intf_name: string;                  (* Name of interface *)
+    intf_mlname: string;                (* ML name *)
     intf_mod: string;                   (* Source module *)
     mutable intf_super: interface;      (* Super-interface *)
     mutable intf_methods: function_decl list;   (* Methods *)

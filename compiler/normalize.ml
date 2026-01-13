@@ -326,8 +326,9 @@ let enter_interface i =
   process_declarator "interface" intfs i.intf_name i
     (fun i -> i.intf_methods)
     (fun () ->
-      { intf_name = i.intf_name; intf_mod = !module_name;
-        intf_super = i.intf_super; intf_methods = []; intf_uid = "" })
+      { intf_name = i.intf_name; intf_mlname = i.intf_mlname;
+        intf_mod = !module_name; intf_super = i.intf_super; intf_methods = [];
+        intf_uid = "" })
     (fun i' i ->
       let super =
         try

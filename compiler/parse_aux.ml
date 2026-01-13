@@ -462,13 +462,13 @@ let make_interface name attrs superintf comps =
     let (methods, others) =
       split_comps comps in
     let rec super = (* dummy super interface, only intf_name is used *)
-      { intf_name = supername; intf_mod = ""; intf_super = super;
-        intf_methods = []; intf_uid = "" } in
+      { intf_name = supername; intf_mlname = ""; intf_mod = "";
+        intf_super = super; intf_methods = []; intf_uid = "" } in
     let intf_forward =
-      { intf_name = name; intf_mod = ""; intf_super = super;
+      { intf_name = name; intf_mlname = ""; intf_mod = ""; intf_super = super;
         intf_methods = []; intf_uid = "" } in
     let intf =
-      { intf_name = name; intf_mod = ""; intf_super = super;
+      { intf_name = name; intf_mlname = ""; intf_mod = ""; intf_super = super;
         intf_methods = methods; intf_uid = !uid } in
     type_names := StringSet.add name !type_names;
     Comp_interface intf :: others @ [Comp_interface intf_forward]
@@ -476,7 +476,7 @@ let make_interface name attrs superintf comps =
 
 let make_forward_interface name =
   let rec intf =
-    { intf_name = name; intf_mod = ""; intf_super = intf;
+    { intf_name = name; intf_mlname = ""; intf_mod = ""; intf_super = intf;
       intf_methods = []; intf_uid = "" } in
   Comp_interface intf
 
