@@ -33,7 +33,7 @@ let ml_declaration oc ud =
     then fprintf oc "Default_%s" ud.ud_mlname
     else fprintf oc "Default_%d" ud.ud_stamp in
   let out_constr oc lbl =
-    output_string oc (String.capitalize_ascii lbl.label_name) in
+    output_string oc lbl.label_mlname in
   let emit_case = function
     {case_labels = []; case_field = None} -> (* default case, no arg *)
       fprintf oc "  | %t of int\n" out_default

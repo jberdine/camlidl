@@ -189,10 +189,14 @@ and normalize_field f =
     else f.field_mlname in
   {f with field_typ = normalize_type f.field_typ; field_mlname}
 
+and normalize_label l =
+  { l with label_mlname = drop_prefix_cap l.label_name }
+
 and normalize_case c =
+  let labels = List.map normalize_label c.case_labels in
   match c.case_field with
-    None -> c
-  | Some f -> {c with case_field = Some(normalize_field f)}
+    None -> {c with case_labels = labels}
+  | Some f -> {case_labels = labels; case_field = Some(normalize_field f)}
 
 and enter_struct sd =
   process_declarator "struct" structs sd.sd_name sd
