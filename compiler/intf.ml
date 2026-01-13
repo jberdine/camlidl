@@ -59,8 +59,7 @@ let ml_class_declaration oc intf =
   then fprintf oc "      inherit %s_class\n" mlsuper;
   List.iter
     (fun meth ->
-      fprintf oc "      method %s: %a\n"
-                 (String.uncapitalize_ascii meth.fun_name) out_method_type meth)
+      fprintf oc "      method %s: %a\n" meth.fun_mlname out_method_type meth)
     intf.intf_methods;
   fprintf oc "    end\n\n";
   (* Declare the IID *)
@@ -200,9 +199,8 @@ let ml_class_definition oc intf =
                supername supername intfname;
   List.iter
     (fun meth ->
-      let methname = String.uncapitalize_ascii meth.fun_name in
       fprintf oc "    method %s = %s_%s intf\n"
-              methname intfname meth.fun_name)
+              meth.fun_mlname intfname meth.fun_mlname)
     intf.intf_methods;
   fprintf oc "  end\n\n";
   (* Define the conversion functions *)
