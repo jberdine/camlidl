@@ -550,7 +550,7 @@ let make_noncaps_labels lbls fld =
     List.fold_right
       (fun lbl acc ->
          match lbl with
-           Expr_ident s -> s :: acc
+           Expr_ident s -> {label_name = s; label_mlname = s} :: acc
          | i ->
            Utils.error "Numeric union case not implemented.\n")
       lbls [] in

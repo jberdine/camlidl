@@ -58,11 +58,14 @@ and union_attributes =
 and enum_attributes =
   { bitset: bool }
 
+and label =
+  { label_name: string; label_mlname: string }
+
 and field =
   { field_name: string; field_mlname: string; field_typ: idltype }
 
 and union_case =
-  { case_labels: string list; case_field: field option }
+  { case_labels: label list; case_field: field option }
 
 and enum_const =
   { const_name: string; const_mlname: string; const_val: lexpr option }

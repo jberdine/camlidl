@@ -419,7 +419,8 @@ case_list:
   | case_list case_label                                { $2 :: $1 }
 ;
 case_label:
-    CASE ident COLON                                    { $2 }
+    CASE ident COLON                                    { {label_name = $2;
+                                                           label_mlname = $2} }
 ;
 union_noncaps_body:
     union_noncaps_case                                  { [$1] }
