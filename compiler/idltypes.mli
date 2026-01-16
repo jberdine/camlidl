@@ -74,7 +74,7 @@ and named_decl =
   { nd_name: string; nd_mlname: string; nd_mod: string }
 
 and interface_decl =
-  { id_name: string; id_mod: string }
+  { id_name: string; id_mlname: string; id_mod: string }
 
 and struct_decl =
   { sd_name: string; sd_mlname: string; sd_mod: string; mutable sd_stamp: int;

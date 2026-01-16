@@ -350,13 +350,14 @@ let emit_method_call intfname methname oc fundecl =
   end;
   if fundecl.fun_blocking then iprintf oc "caml_leave_blocking_section();\n"
 
-let emit_method_wrapper oc id_name meth =
+let emit_method_wrapper oc id_name id_mlname meth =
   current_function := sprintf "%s %s" id_name meth.fun_name;
   let fundecl =
     {meth with fun_name = sprintf "%s_%s" id_name meth.fun_name} in
   let (ins1, outs) = ml_view fundecl in
   (* Add an ML parameter and a C local for "this" *)
-  let intf_type = Type_pointer(Ignore, Type_interface{id_name; id_mod=""}) in
+  let intf_type =
+    Type_pointer(Ignore, Type_interface{id_name; id_mlname; id_mod=""}) in
   let ins = ("this", intf_type) :: ins1 in
   let locals = ("this", In, intf_type) :: fundecl.fun_params in
   emit_function oc fundecl ins outs locals

@@ -174,7 +174,8 @@ let ml_class_definition oc intf =
   (* Declare the C wrappers for invoking the methods from Caml *)
   let self_type =
     Type_pointer(Ref,
-      Type_interface{id_name=intf.intf_name; id_mod=(!module_name)}) in
+      Type_interface{id_name=intf.intf_name; id_mlname=intf.intf_mlname;
+                     id_mod=(!module_name)}) in
   List.iter
     (fun meth ->
       let prim =
@@ -376,7 +377,8 @@ let emit_make_interface oc intf =
 (* Definition of the translation functions *)
 
 let emit_transl oc intf =
-  List.iter (Funct.emit_method_wrapper oc intf.intf_name) intf.intf_methods;
+  List.iter (Funct.emit_method_wrapper oc intf.intf_name intf.intf_mlname)
+    intf.intf_methods;
   List.iter (emit_callback_wrapper oc intf) intf.intf_methods;
   emit_vtable oc intf;
   emit_make_interface oc intf

@@ -37,6 +37,6 @@ val ml_declaration : out_channel -> function_decl -> unit
 val c_declaration : out_channel -> function_decl -> unit
 
 val emit_wrapper : out_channel -> function_decl -> unit
-val emit_method_wrapper : out_channel -> string -> function_decl -> unit
+val emit_method_wrapper : out_channel -> string -> string -> function_decl -> unit
 
 val out_inout : out_channel -> in_out -> unit
