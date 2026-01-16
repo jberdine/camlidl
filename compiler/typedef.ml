@@ -44,14 +44,20 @@ let find =
 
 (* Generate the ML type definition corresponding to the typedef *)
 
+let ml_td_name td =
+  match td.td_mltype with
+  | Some s -> Some s
+  | None -> Cvttyp.ml_type_name td.td_type
+
 let ml_declaration oc td =
-  match td with
-    {td_abstract = true} ->
-      fprintf oc "%s\n" td.td_mlname
-  | {td_mltype = Some s} ->
-      fprintf oc "%s = %s\n" td.td_mlname s
-  | _ ->
-      fprintf oc "%s = %a\n" td.td_mlname out_ml_type td.td_type
+  if td.td_abstract then
+    fprintf oc "%s\n" td.td_mlname
+  else
+    match ml_td_name td with
+    | Some s ->
+       fprintf oc "%s = %s\n" td.td_mlname s
+    | None ->
+       fprintf oc "%s = %a\n" td.td_mlname out_ml_type td.td_type
 
 (* Generate the C typedef corresponding to the typedef *)
 

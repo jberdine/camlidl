@@ -25,6 +25,9 @@ val out_struct : out_channel -> struct_decl -> unit
 val out_union : out_channel -> union_decl -> unit
 val out_enum : out_channel -> enum_decl -> unit
 
+(* Simple ML name of a type if possible, None if complex *)
+val ml_type_name: idltype -> string option
+
 (* Convert an IDL type to an ML type *)
 val out_ml_type: out_channel -> idltype -> unit
 

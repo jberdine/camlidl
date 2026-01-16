@@ -122,17 +122,27 @@ let out_c_type oc ty = out_c_decl oc ("", ty)
 
 (* Print an ML type name, qualified if necessary *)
 
-let out_mltype_name oc (modl, name) =
-  if modl <> !module_name then fprintf oc "%s." (String.capitalize_ascii modl);
-  output_string oc name
+let mltype_name (modl, mlname) =
+  if modl <> !module_name
+  then String.capitalize_ascii modl ^ "." ^ mlname
+  else mlname
+
+let out_mltype_name oc (modl, mlname) =
+  output_string oc (mltype_name (modl, mlname))
 
 (* Same, but use stamp if no name is provided *)
 
-let out_mltype_stamp oc kind modl name stamp =
-  if modl <> !module_name then fprintf oc "%s." (String.capitalize_ascii modl);
-  if name = ""
-  then fprintf oc "%s_%d" kind stamp
-  else output_string oc name
+let mltype_stamp kind modl mlname stamp =
+  let prefix =
+    if modl <> !module_name
+    then String.capitalize_ascii modl ^ "."
+    else "" in
+  if mlname = ""
+  then prefix ^ kind ^ "_" ^ string_of_int stamp
+  else prefix ^ mlname
+
+let out_mltype_stamp oc kind modl mlname stamp =
+  output_string oc (mltype_stamp kind modl mlname stamp)
 
 (* Convert an IDL type to an ML bigarray element type *)
 
@@ -157,31 +167,62 @@ let findopt_hidden_typedef =
   ref ((fun _ -> invalid_arg "Cvttyp.findopt_hidden_typedef")
        : string -> (string option * idltype) option)
 
-let rec out_ml_type oc ty =
+let rec ml_type_name ty =
   match ty with
-    Type_int(Boolean, _) -> output_string oc "bool"
-  | Type_int((Char | UChar | SChar), _) -> output_string oc "char"
-  | Type_int(_, Iunboxed) -> output_string oc "int"
-  | Type_int(_, Inative) -> output_string oc "nativeint"
-  | Type_int(_, I32) -> output_string oc "int32"
-  | Type_int(_, I64) -> output_string oc "int64"
-  | Type_float | Type_double -> output_string oc "float"
-  | Type_void -> output_string oc "void"
+    Type_int(Boolean, _) -> Some "bool"
+  | Type_int((Char | UChar | SChar), _) -> Some "char"
+  | Type_int(_, Iunboxed) -> Some "int"
+  | Type_int(_, Inative) -> Some "nativeint"
+  | Type_int(_, I32) -> Some "int32"
+  | Type_int(_, I64) -> Some "int64"
+  | Type_float | Type_double -> Some "float"
+  | Type_void -> Some "void"
   | Type_named{nd_name; nd_mlname; nd_mod} ->
       if !generating_mli then
         match !findopt_hidden_typedef nd_name with
-        | Some (Some mltype_str, _) -> output_string oc mltype_str
-        | Some (None, ty) -> out_ml_type oc ty
-        | None -> out_mltype_name oc (nd_mod, nd_mlname)
+        | Some (Some mltype_str, _) -> Some mltype_str
+        | Some (None, ty) -> ml_type_name ty
+        | None -> Some (mltype_name (nd_mod, nd_mlname))
       else
-        out_mltype_name oc (nd_mod, nd_mlname)
+        Some (mltype_name (nd_mod, nd_mlname))
   | Type_struct sd ->
-      out_mltype_stamp oc "struct" sd.sd_mod sd.sd_mlname sd.sd_stamp
+      Some (mltype_stamp "struct" sd.sd_mod sd.sd_mlname sd.sd_stamp)
   | Type_union(ud, discr) ->
-      out_mltype_stamp oc "union" ud.ud_mod ud.ud_mlname ud.ud_stamp
+      Some (mltype_stamp "union" ud.ud_mod ud.ud_mlname ud.ud_stamp)
   | Type_enum (en, attr) ->
+      if attr.bitset then None
+      else Some (mltype_stamp "enum" en.en_mod en.en_mlname en.en_stamp)
+  | Type_pointer(kind, ty) ->
+      begin match kind with
+        Ref -> ml_type_name ty
+      | Unique | Ptr -> None
+      | Ignore -> assert false
+      end
+  | Type_array(attr, ty) ->
+      if attr.maybe_null then None
+      else if attr.is_string then Some "string"
+      else if attr.is_bytes then Some "bytes"
+      else None
+  | Type_bigarray _ -> None
+  | Type_interface _ -> None
+  | Type_const ty' ->
+      ml_type_name ty'
+
+let rec out_ml_type oc ty =
+  match ml_type_name ty with
+  | Some name -> output_string oc name
+  | None ->
+  match ty with
+  | Type_named{nd_name; nd_mlname; nd_mod} ->
+      assert !generating_mli;   (* otherwise ml_type_name ty is Some _ *)
+      begin match !findopt_hidden_typedef nd_name with
+      | Some (None, ty) -> out_ml_type oc ty
+      | _ -> assert false       (* otherwise ml_type_name ty is Some _ *)
+      end
+  | Type_enum (en, attr) ->
+      assert attr.bitset;       (* otherwise ml_type_name ty is Some _ *)
       out_mltype_stamp oc "enum" en.en_mod en.en_mlname en.en_stamp;
-      if attr.bitset then fprintf oc " list"
+      fprintf oc " list"
   | Type_pointer(kind, ty) ->
       begin match kind with
         Ref -> out_ml_type oc ty
@@ -214,6 +255,7 @@ let rec out_ml_type oc ty =
       fprintf oc "%a Com.interface" out_mltype_name (id_mod, id_mlname)
   | Type_const ty' ->
       out_ml_type oc ty'
+  | _ -> assert false           (* otherwise ml_type_name ty is Some _ *)
 
 (* Output a list of ML types *)
 
