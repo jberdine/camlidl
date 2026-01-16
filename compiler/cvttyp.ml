@@ -70,8 +70,8 @@ let rec out_c_decl oc (id, ty) =
       out_c_decl oc (id', ty)
   | Type_bigarray(attr, ty) ->
       out_c_decl oc (sprintf "*%s" id, ty)
-  | Type_interface(modl, intf_name) ->
-      fprintf oc "struct %s %s" intf_name id
+  | Type_interface{id_name} ->
+      fprintf oc "struct %s %s" id_name id
   | Type_const ty' ->
       out_c_decl oc (sprintf "const %s" id, ty')
 
@@ -210,8 +210,8 @@ let rec out_ml_type oc ty =
         out_ml_type ty (ml_bigarray_kind ty) layout typeconstr;
       if attr.bigarray_maybe_null
       then fprintf oc " option"
-  | Type_interface(modl, name) ->
-      fprintf oc "%a Com.interface" out_mltype_name (modl, name)
+  | Type_interface{id_name; id_mod} ->
+     fprintf oc "%a Com.interface" out_mltype_name (id_mod, id_name)
   | Type_const ty' ->
       out_ml_type oc ty'
 

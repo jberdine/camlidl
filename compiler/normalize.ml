@@ -170,7 +170,7 @@ let rec normalize_type = function
   | Type_named{nd_name} ->
       begin try
         let itf = Hashtbl.find intfs nd_name in
-        Type_interface(itf.intf_mod, itf.intf_name)
+        Type_interface{id_name=itf.intf_name; id_mod=itf.intf_mod}
       with Not_found ->
       try
         let td = Hashtbl.find typedefs nd_name in

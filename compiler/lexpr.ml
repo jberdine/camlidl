@@ -279,8 +279,8 @@ let rec tstype trail = function
       tstype trail' ty
   | Type_bigarray(attr, ty) ->
       tstype (sprintf "*%s" trail) ty
-  | Type_interface(modl, intf_name) ->
-      add_string b "struct "; add_string b intf_name; add_string b trail
+  | Type_interface{id_name} ->
+      add_string b "struct "; add_string b id_name; add_string b trail
   | Type_const ty ->
       tstype (sprintf " const %s" trail) ty
 

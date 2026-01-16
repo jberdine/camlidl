@@ -173,7 +173,8 @@ let ml_class_definition oc intf =
                               intf.intf_super.intf_name);
   (* Declare the C wrappers for invoking the methods from Caml *)
   let self_type =
-    Type_pointer(Ref, Type_interface(!module_name, intf.intf_name)) in
+    Type_pointer(Ref,
+      Type_interface{id_name=intf.intf_name; id_mod=(!module_name)}) in
   List.iter
     (fun meth ->
       let prim =

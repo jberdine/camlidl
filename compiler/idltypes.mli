@@ -34,7 +34,7 @@ type idltype =
   | Type_union of union_decl * union_attributes
   | Type_enum of enum_decl * enum_attributes
   | Type_named of named_decl
-  | Type_interface of string * string (* module name, interface name *)
+  | Type_interface of interface_decl
   | Type_const of idltype
 
 and array_attributes =
@@ -72,6 +72,9 @@ and enum_const =
 
 and named_decl =
   { nd_name: string; nd_mlname: string; nd_mod: string }
+
+and interface_decl =
+  { id_name: string; id_mod: string }
 
 and struct_decl =
   { sd_name: string; sd_mlname: string; sd_mod: string; mutable sd_stamp: int;
