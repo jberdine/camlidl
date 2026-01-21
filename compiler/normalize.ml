@@ -68,7 +68,8 @@ let rec classify_char = function
     Type_int((Char | UChar | Byte), _) -> Some Narrow
   | Type_int(UShort, _) -> Some Wide
   | Type_named{nd_name} -> classify_char (expand_typedef nd_name)
-  | Type_const ty -> classify_char ty
+  | Type_const ty
+  | Type_nullable ty -> classify_char ty
   | _ -> None
 
 (* String prefix removal for -remove-prefix option *)
@@ -181,6 +182,8 @@ let rec normalize_type = function
       end
   | Type_const ty ->
       Type_const(normalize_type ty)
+  | Type_nullable ty ->
+      Type_nullable(normalize_type ty)
   | ty -> ty
 
 and normalize_field f =
@@ -284,7 +287,8 @@ let rec validate_length_is params mode = function
         attr.dims;
       validate_length_is params mode ty
   | Type_pointer (_, ty)
-  | Type_const ty ->
+  | Type_const ty
+  | Type_nullable ty ->
       validate_length_is params mode ty
   | _ -> ()
 

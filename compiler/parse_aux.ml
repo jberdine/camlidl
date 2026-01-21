@@ -67,6 +67,8 @@ let rec merge_array_attr merge_fun rexps ty =
       Type_bigarray({attr with dims = dims'}, ty_elt)
   | (_, Type_const ty') ->
       Type_const (merge_array_attr merge_fun rexps ty')
+  | (_, Type_nullable ty') ->
+      Type_nullable (merge_array_attr merge_fun rexps ty')
   | (_, _) ->
       eprintf "%t: Warning: size_is or length_is attribute applied to \
                type `%a', ignored.\n" print_location out_c_type ty;
@@ -92,7 +94,8 @@ let make_bigarray ty =
       extract_spine (no_bounds :: dims) ty
   | Type_array(attr, ty) ->
       extract_spine (attr :: dims) ty
-  | Type_const((Type_pointer(_,_) | Type_array(_,_)) as ty') ->
+  | (Type_const ty' | Type_nullable ty')
+       when (match ty' with Type_pointer _ | Type_array _ -> true | _ -> false) ->
       extract_spine dims ty'
   | ty ->
       (List.rev dims, ty) in
@@ -146,6 +149,8 @@ let [@ocaml.warning "-23"] rec apply_type_attribute ty attr =
       end
   | (("unique", _), Type_bigarray(attr, ty_elt)) ->
       Type_bigarray({attr with bigarray_maybe_null = true}, ty_elt)
+  | (("unique", _), (Type_named _ as ty)) ->
+      Type_nullable ty
   | (("ptr", _), Type_pointer(attr, ty_elt)) ->
       Type_pointer(Ptr, ty_elt)
   | (("ignore", _), Type_pointer(attr, ty_elt)) ->
@@ -192,6 +197,8 @@ let [@ocaml.warning "-23"] rec apply_type_attribute ty attr =
                  apply_type_attribute ty_elt (star_attribute name, rexps))
   | (_, Type_const ty') ->
       Type_const(apply_type_attribute ty' attr)
+  | (_, Type_nullable ty') ->
+      Type_nullable(apply_type_attribute ty' attr)
   | ((name, _), _) ->
       eprintf
         "%t: Warning: attribute `%s' unknown, malformed or not \
@@ -208,6 +215,8 @@ let rec ref_pointer = function
       Type_array({attr with maybe_null = false}, ty_elt)
   | Type_const ty ->
       Type_const(ref_pointer ty)
+  | Type_nullable ty ->
+      Type_nullable(ref_pointer ty)
   | ty -> ty
 
 let make_param attrs tybase decl =

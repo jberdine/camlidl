@@ -152,6 +152,9 @@ let rec ml_to_c oc onstack pref ty v c =
       error (sprintf "Reference to interface %s that is not a pointer" id_name)
   | Type_const ty' ->
       ml_to_c oc onstack pref ty' v c
+  | Type_nullable ty_elt ->
+      option_ml_to_c oc v c
+        (fun v' -> ml_to_c oc onstack pref ty_elt v' c)
 
 (* Translate the C value [c] and store it into the ML variable [v].
    [ty] is the IDL type of the value being converted.
@@ -229,6 +232,9 @@ let rec c_to_ml oc pref ty c v =
       error (sprintf "Reference to interface %s that is not a pointer" id_name)
   | Type_const ty' ->
       c_to_ml oc pref ty' c v
+  | Type_nullable ty_elt ->
+      option_c_to_ml oc c v
+        (c_to_ml oc pref ty_elt c)
 
 (* Allocate suitable space for the C out parameter [c]. *)
 

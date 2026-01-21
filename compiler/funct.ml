@@ -76,8 +76,9 @@ let rec split_in_out = function
 
 let rec is_errorcode = function
     Type_named{nd_name} -> (!Typedef.find nd_name).td_errorcode
-  | Type_pointer(kind, ty) -> is_errorcode ty
-  | Type_const ty -> is_errorcode ty
+  | Type_pointer(_, ty)
+  | Type_const ty
+  | Type_nullable ty -> is_errorcode ty
   | _ -> false
 
 (* Check if return value is used as length_is(_return) in any parameter *)
@@ -86,7 +87,8 @@ let rec return_is_out_length = function
     Type_array({length = Some (Expr_ident "_return")}, _) -> true
   | Type_array(_, ty)
   | Type_pointer(_, ty)
-  | Type_const ty -> return_is_out_length ty
+  | Type_const ty
+  | Type_nullable ty -> return_is_out_length ty
   | _ -> false
 
 let return_is_dependent params =
@@ -178,9 +180,10 @@ let rec call_error_check oc name ty =
         {td_errorcheck = Some fn} -> iprintf oc "%s(%s);\n" fn name
       | _ -> ()
       end
-  | Type_pointer(kind, ty_elt) ->
+  | Type_pointer(_, ty_elt) ->
       call_error_check oc ("*" ^ name) ty_elt
-  | Type_const ty' ->
+  | Type_const ty'
+  | Type_nullable ty' ->
       call_error_check oc name ty'
   | _ -> ()
 
@@ -215,7 +218,9 @@ let emit_function oc fundecl ins outs locals emit_call =
      point to suitable storage *)
   List.iter
     (function (name, _,
-               (Type_pointer(_, ty_arg) | Type_const(Type_pointer(_, ty_arg))))
+               ( Type_pointer(_, ty_arg)
+               | Type_const(Type_pointer(_, ty_arg))
+               | Type_nullable(Type_pointer(_, ty_arg)) ))
               when is_dependent_parameter name In fundecl.fun_params fundecl.fun_res ->
                   let c = new_c_variable ty_arg in
                   iprintf pc "%s = &%s;\n" name c

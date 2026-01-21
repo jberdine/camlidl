@@ -36,6 +36,7 @@ type idltype =
   | Type_named of named_decl
   | Type_interface of interface_decl
   | Type_const of idltype
+  | Type_nullable of idltype
 
 and array_attributes =
   { bound: lexpr option;
