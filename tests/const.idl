@@ -1,0 +1,5 @@
+/* Test const qualifier preservation on return types */
+
+interface ConstTest {
+[string] const char * get_message();
+}

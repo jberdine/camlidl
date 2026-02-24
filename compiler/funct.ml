@@ -211,7 +211,7 @@ let emit_function oc fundecl ins outs locals emit_call =
               out_c_decl (name, scrape_const ty) out_inout inout)
     locals;
   if fundecl.fun_res <> Type_void then
-    fprintf oc "  %a;\n" out_c_decl ("_res", scrape_const fundecl.fun_res);
+    fprintf oc "  %a;\n" out_c_decl ("_res", fundecl.fun_res);
   let pc = divert_output() in
   increase_indent();
   (* Initialize dependent parameters that are pointers so that they
