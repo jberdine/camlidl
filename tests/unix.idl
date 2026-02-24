@@ -10,7 +10,7 @@ quote(C,"#include <sys/stat.h>")
 quote(C,"#include <sys/time.h>")
 quote(C,"#include <fcntl.h>")
 
-quote (C, "
+quote (C, {|
   /* Wrapping of return code for wait */
 
   union process_status { int code; };
@@ -40,7 +40,7 @@ quote (C, "
   typedef fd_set * file_descr_set;
 
   extern char ** environ;
-")
+|})
 
 [string*, null_terminated] char ** environment(void)
    quote(call, "_res = environ;");
@@ -67,16 +67,16 @@ union process_status {
 int wait([out] int * kind,
          [out,switch_is(*kind)] union process_status * p)
   quote(call,
-    " { int status;
-        _res = wait(&status);
-        if (_res != -1) decode_status(status, kind, p); }");
+    {| { int status;
+         _res = wait(&status);
+         if (_res != -1) decode_status(status, kind, p); }|});
 
 void system([in,string] char * cmd,
             [out] int * kind,
             [out,switch_is(*kind)] union process_status * p)
   quote(call,
-    "  { int ret = system(cmd);
-         decode_status(ret, kind, p); } ");
+    {|  { int ret = system(cmd);
+         decode_status(ret, kind, p); } |});
 
 int getpid(void);
 int getppid(void);
@@ -101,8 +101,8 @@ int read([in] int fd, [in,string,size_is(len)] char * buf, [in] int len);
 void read2([in] int fd, [in] int len, [out] int *rd,
           [out,string,size_is(len),length_is(*rd)] char * buf)
   quote(call,
-    " *rd = read(fd, buf, len);
-      if (*rd == -1) caml_failwith(\"read2\"); ");
+    {| *rd = read(fd, buf, len);
+       if (*rd == -1) caml_failwith("read2"); |});
 
 /* write */
 int write([in] int fd, [in,string,size_is(len)] char * buf, [in] int len);
@@ -148,8 +148,8 @@ typedef [abstract,ptr] void * dir_handle;
 
 dir_handle opendir([string] char * filename)
   quote(call,
-    " _res = opendir(filename);
-      if (_res == NULL) caml_failwith(\"opendir\"); ");
+    {| _res = opendir(filename);
+       if (_res == NULL) caml_failwith("opendir"); |});
 
 typedef struct {
   [string] char d_name[256];   // NAME_MAX in fact

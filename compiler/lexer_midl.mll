@@ -90,6 +90,7 @@ exception Lex_error of string
 let blank = [' ' '\010' '\013' '\009' '\012']
 let eol = ('\n' | '\r' | "\r\n")
 let identstart = ['A'-'Z' 'a'-'z' '_']
+let lowercase = ['a'-'z' '_']
 let identchar = identstart | ['0'-'9']
 let decimal_literal = ['0'-'9']+
 let hex_literal = '0' ['x' 'X'] ['0'-'9' 'A'-'F' 'a'-'f']+
@@ -127,6 +128,12 @@ rule token = parse
   | "\""
       { Buffer.reset string_buffer;
         string lexbuf;
+        let s = Buffer.contents string_buffer in
+        Buffer.reset string_buffer;
+        STRING s }
+  | "{" (lowercase* as delim) "|"
+      { Buffer.reset string_buffer;
+        quoted_string delim lexbuf;
         let s = Buffer.contents string_buffer in
         Buffer.reset string_buffer;
         STRING s }
@@ -197,4 +204,24 @@ and string = parse
   | _
       { Buffer.add_char string_buffer (Lexing.lexeme_char lexbuf 0);
         string lexbuf }
+
+and quoted_string delim = parse
+  | '\013'* '\010'
+      { Buffer.add_char string_buffer '\n';
+        quoted_string delim lexbuf }
+  | '\013'
+      { Buffer.add_char string_buffer '\n';
+        quoted_string delim lexbuf }
+  | '|' (lowercase* as delim') '}'
+      { if delim <> delim' then begin
+          Buffer.add_char string_buffer '|';
+          Buffer.add_string string_buffer delim';
+          Buffer.add_char string_buffer '}';
+          quoted_string delim lexbuf
+        end }
+  | eof
+      { raise (Lex_error "Unterminated quoted string") }
+  | _ as c
+      { Buffer.add_char string_buffer c;
+        quoted_string delim lexbuf }
 
