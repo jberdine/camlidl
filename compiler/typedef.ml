@@ -45,10 +45,10 @@ let find =
 
 let ml_declaration oc td =
   match td with
-    {td_mltype = Some s} ->
-      fprintf oc "%s = %s\n" (String.uncapitalize_ascii td.td_name) s
-  | {td_abstract = true} ->
+    {td_abstract = true} ->
       fprintf oc "%s\n" (String.uncapitalize_ascii td.td_name)
+  | {td_mltype = Some s} ->
+      fprintf oc "%s = %s\n" (String.uncapitalize_ascii td.td_name) s
   | _ ->
       fprintf oc "%s = %a\n"
               (String.uncapitalize_ascii td.td_name) out_ml_type td.td_type
