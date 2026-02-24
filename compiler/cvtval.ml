@@ -82,7 +82,9 @@ let rec ml_to_c oc onstack pref ty v c =
       let conv =
         match repr with
           Iunboxed ->
-            if kind = Long || kind = ULong then "Long_val" else "Int_val"
+            if kind = Boolean then "Bool_val"
+            else if kind = Long || kind = ULong then "Long_val"
+            else "Int_val"
         | Inative -> "Nativeint_val"
         | I32 -> "Int32_val"
         | I64 -> "Int64_val" in
@@ -164,7 +166,9 @@ let rec c_to_ml oc pref ty c v =
       let conv =
         match repr with
           Iunboxed ->
-            if kind = Long || kind = ULong then "Val_long" else "Val_int"
+            if kind = Boolean then "Val_bool"
+            else if kind = Long || kind = ULong then "Val_long"
+            else "Val_int"
         | Inative -> "caml_copy_nativeint"
         | I32 -> "caml_copy_int32"
         | I64 -> "caml_copy_int64" in

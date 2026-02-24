@@ -1,0 +1,5 @@
+/* Test boolean type conversion */
+
+boolean is_valid(int x);
+void set_flag([in] boolean flag);
+boolean toggle([in] boolean input);
