@@ -55,7 +55,8 @@ let gen_type_def oc intf =
     first := false in
   let emit_typedef = function
       Comp_typedecl td ->
-        if not (!generating_mli && td.Typedef.td_hidden) then begin
+        if not (!generating_mli && td.Typedef.td_hidden)
+           && not (Typedef.is_cyclic td) then begin
           start_decl(); Typedef.ml_declaration oc td
         end
     | Comp_structdecl s ->
