@@ -47,7 +47,8 @@ let rec collect_type = function
   | Type_bigarray(_, ty) -> collect_type ty
   | Type_struct sd -> List.iter collect_field sd.sd_fields
   | Type_union(ud, _) -> List.iter collect_case ud.ud_cases
-  | Type_const ty -> collect_type ty
+  | Type_const ty
+  | Type_nullable ty -> collect_type ty
   | _ -> ()
 
 and collect_field f =
@@ -85,6 +86,7 @@ let rec prefix_type pref = function
   | Type_pointer(kind, ty) -> Type_pointer(kind, prefix_type pref ty)
   | Type_array(attr, ty) -> Type_array(attr, prefix_type pref ty)
   | Type_const ty -> Type_const(prefix_type pref ty)
+  | Type_nullable ty -> Type_nullable(prefix_type pref ty)
   | ty -> ty
 
 and prefix_struct pref sd =

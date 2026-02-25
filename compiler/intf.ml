@@ -287,6 +287,8 @@ let emit_callback_wrapper oc intf meth =
     match (dst, scrape_const ty) with
       ("_res", _) -> ml_to_c pc false pref ty src dst
     | (_, Type_pointer(_, ty')) -> ml_to_c pc false pref ty' src ("*" ^ dst)
+    | (_, Type_nullable(Type_pointer(_, ty'))) ->
+        ml_to_c pc false pref ty' src ("*" ^ dst)
     | (_, _) ->
         error (sprintf "Out parameter `%s' must be a pointer" dst) in
   begin match outs with

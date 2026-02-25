@@ -74,6 +74,8 @@ let rec out_c_decl oc (id, ty) =
       fprintf oc "struct %s %s" id_name id
   | Type_const ty' ->
       out_c_decl oc (sprintf "const %s" id, ty')
+  | Type_nullable ty' ->
+      out_c_decl oc (id, ty')
 
 and out_struct oc sd =
   fprintf oc "struct ";
@@ -207,6 +209,7 @@ let rec ml_type_name ty =
   | Type_interface _ -> None
   | Type_const ty' ->
       ml_type_name ty'
+  | Type_nullable _ -> None
 
 let rec out_ml_type oc ty =
   match ml_type_name ty with
@@ -255,6 +258,8 @@ let rec out_ml_type oc ty =
       fprintf oc "%a Com.interface" out_mltype_name (id_mod, id_mlname)
   | Type_const ty' ->
       out_ml_type oc ty'
+  | Type_nullable ty' ->
+      fprintf oc "%a option" out_ml_type ty'
   | _ -> assert false           (* otherwise ml_type_name ty is Some _ *)
 
 (* Output a list of ML types *)
@@ -266,10 +271,11 @@ let out_ml_types oc sep types =
       out_ml_type oc ty1;
       List.iter (fun (_, ty) -> fprintf oc " %s " sep; out_ml_type oc ty) tyl
 
-(* Expand typedef and const in type *)
+(* Expand typedef, const, and nullable in type *)
 let rec scrape_type = function
     Type_named{nd_name} -> scrape_type (!Lexpr.expand_typedef nd_name)
-  | Type_const ty -> scrape_type ty
+  | Type_const ty
+  | Type_nullable ty -> scrape_type ty
   | ty -> ty
 
 (* Remove leading "const" from a type *)
@@ -284,5 +290,6 @@ let rec scrape_const = function
 (* Determine if a type is an ignored pointer *)
 let rec is_ignored = function
     Type_pointer(Ignore, _) -> true
-  | Type_const ty -> is_ignored ty
+  | Type_const ty
+  | Type_nullable ty -> is_ignored ty
   | _ -> false

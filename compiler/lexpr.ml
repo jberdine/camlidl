@@ -283,6 +283,8 @@ let rec tstype trail = function
       add_string b "struct "; add_string b id_name; add_string b trail
   | Type_const ty ->
       tstype (sprintf " const %s" trail) ty
+  | Type_nullable ty ->
+      tstype trail ty
 
 and integer_type = function
     Int -> "int"
@@ -471,8 +473,8 @@ let rec is_dependent v ty =
       || is_dependent v ty
   | Type_union(name, attr) ->
       is_free v attr.discriminant
-  | Type_pointer(_, ty) ->
-      is_dependent v ty
-  | Type_const ty ->
+  | Type_pointer(_, ty)
+  | Type_const ty
+  | Type_nullable ty ->
       is_dependent v ty
   | _ -> false
