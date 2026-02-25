@@ -267,11 +267,12 @@ let make_fun_declaration attrs ty_res name params quotes =
     | attr :: rem ->
           merge_attributes (apply_type_attribute ty attr) rem in
   let ty_res' = merge_attributes ty_res attrs in
+  let fun_mlname = match !mlname with Some n -> n | None -> !truename in
   { fun_name = !truename;
     fun_mod = "";
     fun_res = ty_res';
     fun_params = params;
-    fun_mlname = !mlname;
+    fun_mlname;
     fun_call = !call;
     fun_dealloc = !dealloc;
     fun_blocking = !blocking;
@@ -295,9 +296,10 @@ let make_fields attrs tybase decls =
 let make_discriminated_union name union_name switch_name switch_type body =
   let ud_name = name ^ "_" ^ union_name in
   let ty_union =
-    Type_union({ud_name; ud_mod = ""; ud_stamp = 0; ud_cases = body},
+    Type_union({ud_name; ud_mlname = ""; ud_mod = ""; ud_stamp = 0;
+                ud_cases = body},
                {discriminant = Expr_ident switch_name}) in
-  { sd_name = name; sd_mod = ""; sd_stamp = 0;
+  { sd_name = name; sd_mlname = name; sd_mod = ""; sd_stamp = 0;
     sd_fields = [ {field_name = switch_name; field_mlname = switch_name;
                    field_typ = switch_type};
                   {field_name = union_name; field_mlname = union_name;
@@ -344,7 +346,7 @@ let make_typedef attrs tybase decls =
   let merge_definition tybase decl =
     let (name, ty) = decl tybase in
     type_names := StringSet.add name !type_names;
-    let td = {td_name = name; td_mod = "";
+    let td = {td_name = name; td_mlname = name; td_mod = "";
               td_type = Type_void; (* dummy *)
               td_abstract = false; td_mltype = None;
               td_c2ml = None; td_ml2c = None;
@@ -360,19 +362,22 @@ let make_typedef attrs tybase decls =
     [] -> (* didn't find a name, use original decls *)
       List.map (merge_definition tybase) (List.rev past)
   | decl :: rem ->
-      match decl (Type_named("%", "%")) with
-        (name, Type_named("%", "%")) ->
+      match decl (Type_named{nd_name="%"; nd_mlname="%"; nd_mod="%"}) with
+        (name, Type_named{nd_name="%"; nd_mod="%"}) ->
         (* Found a name, define it first, and define the others in terms
            of this name *)
           merge_definition tybase decl ::
-          List.map (merge_definition (Type_named("", name)))
-                   (List.rev past @ rem)
+          List.map
+            (merge_definition
+               (Type_named{nd_name=name; nd_mlname=name; nd_mod=""}))
+            (List.rev past @ rem)
       | (_, _) ->
           split_decls (decl :: past) rem in
   split_decls [] decls
 
 let make_const_decl attr ty name v =
-  { cd_name = name; cd_type = apply_type_attributes ty attr; cd_value = v }
+  { cd_name = name; cd_mlname = name;
+    cd_type = apply_type_attributes ty attr; cd_value = v }
 
 let update_int_default dfl arg =
   match arg with
@@ -457,13 +462,13 @@ let make_interface name attrs superintf comps =
     let (methods, others) =
       split_comps comps in
     let rec super = (* dummy super interface, only intf_name is used *)
-      { intf_name = supername; intf_mod = ""; intf_super = super;
-        intf_methods = []; intf_uid = "" } in
+      { intf_name = supername; intf_mlname = ""; intf_mod = "";
+        intf_super = super; intf_methods = []; intf_uid = "" } in
     let intf_forward =
-      { intf_name = name; intf_mod = ""; intf_super = super;
+      { intf_name = name; intf_mlname = ""; intf_mod = ""; intf_super = super;
         intf_methods = []; intf_uid = "" } in
     let intf =
-      { intf_name = name; intf_mod = ""; intf_super = super;
+      { intf_name = name; intf_mlname = ""; intf_mod = ""; intf_super = super;
         intf_methods = methods; intf_uid = !uid } in
     type_names := StringSet.add name !type_names;
     Comp_interface intf :: others @ [Comp_interface intf_forward]
@@ -471,7 +476,7 @@ let make_interface name attrs superintf comps =
 
 let make_forward_interface name =
   let rec intf =
-    { intf_name = name; intf_mod = ""; intf_super = intf;
+    { intf_name = name; intf_mlname = ""; intf_mod = ""; intf_super = intf;
       intf_methods = []; intf_uid = "" } in
   Comp_interface intf
 
@@ -547,7 +552,7 @@ let make_noncaps_labels lbls fld =
     List.fold_right
       (fun lbl acc ->
          match lbl with
-           Expr_ident s -> s :: acc
+           Expr_ident s -> {label_name = s; label_mlname = s} :: acc
          | i ->
            Utils.error "Numeric union case not implemented.\n")
       lbls [] in

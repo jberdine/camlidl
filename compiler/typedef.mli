@@ -18,6 +18,7 @@ open Idltypes
 
 type type_decl =
   { td_name: string;
+    td_mlname: string;
     td_mod: string;
     td_type: idltype;
     td_abstract: bool;

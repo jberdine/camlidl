@@ -23,6 +23,7 @@ open Cvtval
 
 type type_decl =
   { td_name: string;
+    td_mlname: string;
     td_mod: string;
     td_type: idltype;
     td_abstract: bool;
@@ -46,12 +47,11 @@ let find =
 let ml_declaration oc td =
   match td with
     {td_abstract = true} ->
-      fprintf oc "%s\n" (String.uncapitalize_ascii td.td_name)
+      fprintf oc "%s\n" td.td_mlname
   | {td_mltype = Some s} ->
-      fprintf oc "%s = %s\n" (String.uncapitalize_ascii td.td_name) s
+      fprintf oc "%s = %s\n" td.td_mlname s
   | _ ->
-      fprintf oc "%s = %a\n"
-              (String.uncapitalize_ascii td.td_name) out_ml_type td.td_type
+      fprintf oc "%s = %a\n" td.td_mlname out_ml_type td.td_type
 
 (* Generate the C typedef corresponding to the typedef *)
 

@@ -33,8 +33,8 @@ type idltype =
   | Type_struct of struct_decl
   | Type_union of union_decl * union_attributes
   | Type_enum of enum_decl * enum_attributes
-  | Type_named of string * string (* module name, type name *)
-  | Type_interface of string * string (* module name, interface name *)
+  | Type_named of named_decl
+  | Type_interface of interface_decl
   | Type_const of idltype
 
 and array_attributes =
@@ -58,25 +58,34 @@ and union_attributes =
 and enum_attributes =
   { bitset: bool }
 
+and label =
+  { label_name: string; label_mlname: string }
+
 and field =
   { field_name: string; field_mlname: string; field_typ: idltype }
 
 and union_case =
-  { case_labels: string list; case_field: field option }
+  { case_labels: label list; case_field: field option }
 
 and enum_const =
-  { const_name: string; const_val: lexpr option }
+  { const_name: string; const_mlname: string; const_val: lexpr option }
+
+and named_decl =
+  { nd_name: string; nd_mlname: string; nd_mod: string }
+
+and interface_decl =
+  { id_name: string; id_mlname: string; id_mod: string }
 
 and struct_decl =
-  { sd_name: string; sd_mod: string; mutable sd_stamp: int;
+  { sd_name: string; sd_mlname: string; sd_mod: string; mutable sd_stamp: int;
      mutable sd_fields: field list }
 
 and union_decl =
-  { ud_name: string; ud_mod: string; mutable ud_stamp: int;
+  { ud_name: string; ud_mlname: string; ud_mod: string; mutable ud_stamp: int;
     mutable ud_cases: union_case list }
 
 and enum_decl =
-  { en_name: string; en_mod: string; mutable en_stamp: int;
+  { en_name: string; en_mlname: string; en_mod: string; mutable en_stamp: int;
     mutable en_consts: enum_const list }
 
 and lexpr =

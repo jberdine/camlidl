@@ -24,7 +24,7 @@ type function_decl =
     fun_mod: string;
     fun_res: idltype;
     fun_params: (string * in_out * idltype) list;
-    fun_mlname: string option;
+    fun_mlname: string;
     fun_call: string option;
     fun_dealloc: string option;
     fun_blocking: bool;
@@ -37,6 +37,6 @@ val ml_declaration : out_channel -> function_decl -> unit
 val c_declaration : out_channel -> function_decl -> unit
 
 val emit_wrapper : out_channel -> function_decl -> unit
-val emit_method_wrapper : out_channel -> string -> function_decl -> unit
+val emit_method_wrapper : out_channel -> string -> string -> function_decl -> unit
 
 val out_inout : out_channel -> in_out -> unit

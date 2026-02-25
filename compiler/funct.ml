@@ -30,7 +30,7 @@ type function_decl =
     fun_mod: string;
     fun_res: idltype;
     fun_params: (string * in_out * idltype) list;
-    fun_mlname: string option;
+    fun_mlname: string;
     fun_call: string option;
     fun_dealloc: string option;
     fun_blocking: bool;
@@ -75,7 +75,7 @@ let rec split_in_out = function
 (* Determine if a typedef represents an error code *)
 
 let rec is_errorcode = function
-    Type_named(modl, name) -> (!Typedef.find name).td_errorcode
+    Type_named{nd_name} -> (!Typedef.find nd_name).td_errorcode
   | Type_pointer(kind, ty) -> is_errorcode ty
   | Type_const ty -> is_errorcode ty
   | _ -> false
@@ -113,12 +113,9 @@ let ml_view fundecl =
 
 (* Generate the ML declaration for a function *)
 
-let mlname fundecl =
-  match fundecl.fun_mlname with Some n -> n | None -> fundecl.fun_name
-
 let ml_declaration oc fundecl =
   let (ins, outs) = ml_view fundecl in
-  fprintf oc "external %s : " (String.uncapitalize_ascii (mlname fundecl));
+  fprintf oc "external %s : " fundecl.fun_mlname;
   out_ml_types oc "->" ins;
   fprintf oc " -> ";
   out_ml_types oc "*" outs;
@@ -176,8 +173,8 @@ let output_dealloc oc dealloc =
 
 let rec call_error_check oc name ty =
   match ty with
-    Type_named(modl, ty_name) ->
-      begin match !Typedef.find ty_name with
+    Type_named{nd_name} ->
+      begin match !Typedef.find nd_name with
         {td_errorcheck = Some fn} -> iprintf oc "%s(%s);\n" fn name
       | _ -> ()
       end
@@ -353,15 +350,16 @@ let emit_method_call intfname methname oc fundecl =
   end;
   if fundecl.fun_blocking then iprintf oc "caml_leave_blocking_section();\n"
 
-let emit_method_wrapper oc intf_name meth =
-  current_function := sprintf "%s %s" intf_name meth.fun_name;
+let emit_method_wrapper oc id_name id_mlname meth =
+  current_function := sprintf "%s %s" id_name meth.fun_name;
   let fundecl =
-    {meth with fun_name = sprintf "%s_%s" intf_name meth.fun_name} in
+    {meth with fun_name = sprintf "%s_%s" id_name meth.fun_name} in
   let (ins1, outs) = ml_view fundecl in
   (* Add an ML parameter and a C local for "this" *)
-  let intf_type = Type_pointer(Ignore, Type_interface("", intf_name)) in
+  let intf_type =
+    Type_pointer(Ignore, Type_interface{id_name; id_mlname; id_mod=""}) in
   let ins = ("this", intf_type) :: ins1 in
   let locals = ("this", In, intf_type) :: fundecl.fun_params in
   emit_function oc fundecl ins outs locals
-                   (emit_method_call intf_name meth.fun_name);
+                   (emit_method_call id_name meth.fun_name);
   current_function := ""

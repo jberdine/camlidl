@@ -17,7 +17,7 @@
 open Idltypes
 
 type constant_decl =
-  { cd_name: string; cd_type: idltype; cd_value: lexpr }
+  { cd_name: string; cd_mlname: string; cd_type: idltype; cd_value: lexpr }
 
 val ml_declaration: out_channel -> constant_decl -> unit
 val c_declaration: out_channel -> constant_decl -> unit

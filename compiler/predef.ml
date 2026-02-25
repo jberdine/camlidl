@@ -19,7 +19,7 @@ open Typedef
 open Intf
 
 let hresult =
-  { td_name = "HRESULT"; td_mod = "Com";
+  { td_name = "HRESULT"; td_mlname = "hRESULT"; td_mod = "Com";
     td_type = Type_int(Long, Iunboxed);
     td_abstract = false;
     td_c2ml = None; td_ml2c = None;
@@ -30,7 +30,7 @@ let hresult =
     td_hidden = false }
 
 let hresult_bool =
-  { td_name = "HRESULT_bool"; td_mod = "Com";
+  { td_name = "HRESULT_bool"; td_mlname = "hRESULT_bool"; td_mod = "Com";
     td_type = Type_int(Long, Iunboxed);
     td_abstract = false;
     td_c2ml = None; td_ml2c = None;
@@ -41,7 +41,7 @@ let hresult_bool =
     td_hidden = false }
 
 let hresult_int =
-  { td_name = "HRESULT_int"; td_mod = "Com";
+  { td_name = "HRESULT_int"; td_mlname = "hRESULT_int"; td_mod = "Com";
     td_type = Type_int(Long, Iunboxed);
     td_abstract = false;
     td_c2ml = None; td_ml2c = None;
@@ -52,7 +52,7 @@ let hresult_int =
     td_hidden = false }
 
 let bstr =
-  { td_name = "BSTR"; td_mod = "Com";
+  { td_name = "BSTR"; td_mlname = "bSTR"; td_mod = "Com";
     td_type = Type_int(Long, Iunboxed);
     td_abstract = false;
     td_c2ml = None; td_ml2c = None;
@@ -63,13 +63,13 @@ let bstr =
     td_hidden = false }
 
 let rec iunknown =
-  { intf_name = "IUnknown"; intf_mod = "Com";
+  { intf_name = "IUnknown"; intf_mlname = "iUnknown"; intf_mod = "Com";
     intf_super = iunknown;
     intf_methods = [];
     intf_uid = "00000000-0000-0000-C000-000000000046" }
 
 let idispatch =
-  { intf_name = "IDispatch"; intf_mod = "Com";
+  { intf_name = "IDispatch"; intf_mlname = "iDispatch"; intf_mod = "Com";
     intf_super = iunknown;
     intf_methods = [];
     intf_uid = "00020400-0000-0000-C000-000000000046" }

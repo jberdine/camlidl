@@ -163,13 +163,13 @@ component:
   | attributes enum_declarator SEMI
         { [Comp_enumdecl $2] }
   | attributes STRUCT opt_ident SEMI
-        { [Comp_structdecl {sd_name = $3; sd_mod = "";
+        { [Comp_structdecl {sd_name = $3; sd_mlname = $3; sd_mod = "";
                             sd_stamp = 0; sd_fields = []}] }
   | attributes UNION opt_ident SWITCH LPAREN simple_type_spec ident RPAREN SEMI
-        { [Comp_structdecl {sd_name = $3; sd_mod = "";
+        { [Comp_structdecl {sd_name = $3; sd_mlname = $3; sd_mod = "";
                             sd_stamp = 0; sd_fields = []}] }
   | attributes UNION opt_ident SEMI
-        { [Comp_uniondecl {ud_name = $3; ud_mod = "";
+        { [Comp_uniondecl {ud_name = $3; ud_mlname = $3; ud_mod = "";
                            ud_stamp = 0; ud_cases = []}] }
   | fun_decl SEMI
         { [Comp_fundecl $1] }
@@ -259,17 +259,18 @@ type_spec:
     simple_type_spec
         { $1 }
   | STRUCT opt_ident
-        { Type_struct {sd_name=$2; sd_mod = ""; sd_stamp=0; sd_fields=[]} }
+        { Type_struct {sd_name=$2; sd_mlname=$2; sd_mod = ""; sd_stamp=0;
+                       sd_fields=[]} }
   | struct_declarator
         { Type_struct $1 }
   | UNION opt_ident
-        { Type_union({ud_name=$2; ud_mod = ""; ud_stamp=0; ud_cases=[]},
-                      no_switch) }
+        { Type_union({ud_name=$2; ud_mlname=$2; ud_mod = ""; ud_stamp=0;
+                      ud_cases=[]}, no_switch) }
   | union_declarator
         { Type_union($1, no_switch) }
   | ENUM opt_ident
-        { Type_enum({en_name=$2; en_mod = ""; en_stamp=0; en_consts=[]},
-                    no_enum_attr) }
+        { Type_enum({en_name=$2; en_mlname=$2; en_mod = ""; en_stamp=0;
+                     en_consts=[]}, no_enum_attr) }
   | enum_declarator
         { Type_enum($1, no_enum_attr) }
   | CONST type_spec
@@ -298,7 +299,8 @@ simple_type_spec:
   | UNSIGNED INT64_COMPAT                       { make_int UHyper }
   | SIGNED INT64_COMPAT                         { make_int Hyper }
   | VOID                                        { Type_void }
-  | TYPEIDENT                                   { Type_named("", $1) }
+  | TYPEIDENT
+        { Type_named{nd_name=$1; nd_mlname=$1; nd_mod=""} }
   | WCHAR_T                                     { wchar_t_type() }
   | HANDLE_T                                    { handle_t_type() }
   | integer_fixed                               { make_int $1 }
@@ -372,7 +374,8 @@ union_name:
 ;
 struct_declarator:
     STRUCT opt_ident LBRACE field_declarators RBRACE
-        { {sd_name = $2; sd_mod = ""; sd_stamp = 0; sd_fields = $4} } 
+        { {sd_name = $2; sd_mlname = $2; sd_mod = ""; sd_stamp = 0;
+           sd_fields = $4} } 
   | UNION opt_ident SWITCH LPAREN simple_type_spec ident RPAREN union_name
     LBRACE union_body RBRACE
         { make_discriminated_union $2 $8 $6 $5 (List.rev $10) }
@@ -395,7 +398,8 @@ field_declarator:
 
 union_declarator:
   | UNION opt_ident LBRACE union_body RBRACE
-        { {ud_name = $2; ud_mod = ""; ud_stamp = 0; ud_cases = List.rev $4} }
+        { {ud_name = $2; ud_mlname = $2; ud_mod = ""; ud_stamp = 0;
+           ud_cases = List.rev $4} }
 ;
 union_body:
     union_encaps_body                                   { $1 }
@@ -416,7 +420,8 @@ case_list:
   | case_list case_label                                { $2 :: $1 }
 ;
 case_label:
-    CASE ident COLON                                    { $2 }
+    CASE ident COLON                                    { {label_name = $2;
+                                                           label_mlname = $2} }
 ;
 union_noncaps_body:
     union_noncaps_case                                  { [$1] }
@@ -442,7 +447,8 @@ opt_field_declarator:
 
 enum_declarator:
     ENUM opt_ident LBRACE enum_cases opt_comma RBRACE
-         { {en_name = $2; en_mod = ""; en_stamp = 0; en_consts = List.rev $4} }
+         { {en_name = $2; en_mlname = $2; en_mod = ""; en_stamp = 0;
+            en_consts = List.rev $4} }
 ;
 enum_cases:
     enum_case                                           { [$1] }
@@ -450,9 +456,9 @@ enum_cases:
 ;
 enum_case:
     ident
-      { {const_name = $1; const_val = None} }
+      { {const_name = $1; const_mlname = $1; const_val = None} }
   | ident EQUAL lexpr
-      { {const_name = $1; const_val = Some $3} }
+      { {const_name = $1; const_mlname = $1; const_val = Some $3} }
 ;
 opt_comma:
     COMMA                                               { () }

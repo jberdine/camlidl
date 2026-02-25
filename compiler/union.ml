@@ -46,19 +46,19 @@ let union_ml_to_c ml_to_c oc onstack pref ud v c discr =
   | {case_field = None; case_labels = lbls} -> (* named case, no args *)
       List.iter
         (fun lbl ->
-          iprintf oc "case %d: /* %s */\n" !tag_constant lbl;
+          iprintf oc "case %d: /* %s */\n" !tag_constant lbl.label_name;
           incr tag_constant;
-          iprintf oc "  %s = %s;\n" discr lbl;
+          iprintf oc "  %s = %s;\n" discr lbl.label_name;
           iprintf oc "  break;\n")
         lbls
   | {case_field = Some{field_name = n; field_typ = ty}; case_labels = lbls} ->
       (* named case, one arg *)
       List.iter
         (fun lbl ->
-          iprintf oc "case %d: /* %s */\n" !tag_constr lbl;
+          iprintf oc "case %d: /* %s */\n" !tag_constr lbl.label_name;
           incr tag_constr;
           increase_indent();
-          iprintf oc "%s = %s;\n" discr lbl;
+          iprintf oc "%s = %s;\n" discr lbl.label_name;
           let v' = new_ml_variable() in
           iprintf oc "%s = Field(%s, 0);\n" v' v;
           ml_to_c oc onstack pref ty v' (sprintf "%s.%s" c n);
@@ -129,7 +129,7 @@ let union_c_to_ml c_to_ml oc pref ud c v discr =
   | {case_field = None; case_labels = lbls} -> (* named cases, no arg *)
       List.iter
         (fun lbl ->
-          iprintf oc "case %s:\n" lbl;
+          iprintf oc "case %s:\n" lbl.label_name;
           iprintf oc "  %s = Val_int(%d);\n" v !tag_constant;
           incr tag_constant;
           iprintf oc "  break;\n")
@@ -138,7 +138,7 @@ let union_c_to_ml c_to_ml oc pref ud c v discr =
       (* named cases, one arg *)
       List.iter
         (fun lbl ->
-          iprintf oc "case %s:\n" lbl;
+          iprintf oc "case %s:\n" lbl.label_name;
           increase_indent();
           let v' = new_ml_variable() in
           c_to_ml oc pref ty (sprintf "%s.%s" c n) v';

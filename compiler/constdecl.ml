@@ -21,7 +21,7 @@ open Lexpr
 open Cvttyp
 
 type constant_decl =
-  { cd_name: string; cd_type: idltype; cd_value: lexpr }
+  { cd_name: string; cd_mlname: string; cd_type: idltype; cd_value: lexpr }
 
 (* Record the value of a constant declaration *)
 
@@ -31,7 +31,7 @@ let record c =
 (* Declare the constant in ML *)
 
 let ml_declaration oc c =
-  fprintf oc "val %s : " (String.uncapitalize_ascii c.cd_name);
+  fprintf oc "val %s : " c.cd_mlname;
   match scrape_type c.cd_type with
     Type_int(_, _) ->
       fprintf oc "%a\n" out_ml_type c.cd_type
@@ -51,7 +51,7 @@ let c_declaration oc c =
 
 let ml_definition oc c =
   let v = eval c.cd_value in
-  let name = String.uncapitalize_ascii c.cd_name in
+  let name = c.cd_mlname in
   match scrape_type c.cd_type with
     Type_int((Char | UChar | SChar), _) ->
       fprintf oc "let %s = '%s'\n\n"

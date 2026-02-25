@@ -6,7 +6,7 @@ INCLUDES=-DCAML_NAME_SPACE -I.. -I$(OCAMLLIB)
 CCPP?=$(CC)
 CPPFLAGS=$(CFLAGS)
 
-TESTS=basics.idl arrays.idl structs.idl unions.idl typedefs.idl $(TESTS_$(OSTYPE)) multi_import.idl stdint.idl array_length.idl hidden.idl const.idl boolean.idl quoted_strings.idl
+TESTS=basics.idl arrays.idl structs.idl unions.idl typedefs.idl $(TESTS_$(OSTYPE)) multi_import.idl stdint.idl array_length.idl hidden.idl const.idl boolean.idl quoted_strings.idl prefix.idl
 TESTS_unix=unix.idl
 COMLIBS=$(COMLIBS_$(OSTYPE))
 COMLIBS_win32=advapi32.lib ole32.lib oleaut32.lib
@@ -25,6 +25,13 @@ unix.$(OBJEXT): unix.idl
 	$(CAMLC) -c unix.ml
 	$(CC) $(CFLAGS) $(INCLUDES) -c unix_stubs.c
 	mv unix_stubs.$(OBJEXT) unix.$(OBJEXT)
+
+prefix.$(OBJEXT): prefix.idl
+	$(CAMLIDL) -header -remove-prefix Prefix_ prefix.idl
+	$(CAMLC) -c prefix.mli
+	$(CAMLC) -c prefix.ml
+	$(CC) $(CFLAGS) $(INCLUDES) -c prefix_stubs.c
+	mv prefix_stubs.$(OBJEXT) prefix.$(OBJEXT)
 
 testcomp: comcomp.$(OBJEXT) component.$(OBJEXT) component.cmo testcomponent.cmo \
           ../runtime/libcamlidl.$(LIBEXT)

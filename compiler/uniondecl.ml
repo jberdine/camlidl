@@ -27,20 +27,18 @@ open Union
 let ml_declaration oc ud =
   if ud.ud_name = ""
   then fprintf oc "union_%d =\n" ud.ud_stamp
-  else fprintf oc "%s =\n" (String.uncapitalize_ascii ud.ud_name);
-  let out_constr oc c =
-    if c = "default" then
-      if ud.ud_name <> ""
-      then fprintf oc "Default_%s" ud.ud_name
-      else fprintf oc "Default_%d" ud.ud_stamp
-    else
-      output_string oc (String.capitalize_ascii c) in
+  else fprintf oc "%s =\n" ud.ud_mlname;
+  let out_default oc =
+    if ud.ud_mlname <> ""
+    then fprintf oc "Default_%s" ud.ud_mlname
+    else fprintf oc "Default_%d" ud.ud_stamp in
+  let out_constr oc lbl =
+    output_string oc lbl.label_mlname in
   let emit_case = function
     {case_labels = []; case_field = None} -> (* default case, no arg *)
-      fprintf oc "  | %a of int\n" out_constr "default"
+      fprintf oc "  | %t of int\n" out_default
   | {case_labels = []; case_field = Some f} -> (* default case, one arg *)
-      fprintf oc "  | %a of int * %a\n"
-                 out_constr "default" out_ml_type f.field_typ
+      fprintf oc "  | %t of int * %a\n" out_default out_ml_type f.field_typ
   | {case_labels = lbls; case_field = None} -> (* named cases, no args *)
       List.iter
         (fun lbl -> fprintf oc "  | %a\n" out_constr lbl)

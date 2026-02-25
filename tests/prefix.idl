@@ -1,0 +1,71 @@
+/* Test -remove-prefix option */
+
+/* Constant with prefix */
+const int PREFIX_MAX_VALUE = 100;
+
+/* Constant without prefix (should be unchanged) */
+const int OTHER_MAX_VALUE = 100;
+
+/* Typedef with prefix */
+typedef int Prefix_mytype;
+
+/* Typedef without prefix (should be unchanged) */
+typedef int other_type;
+
+/* Struct with prefixed name and fields */
+typedef struct {
+  int Prefix_field1;
+  int other_field2;
+  [mlname(explicit_field)] int Prefix_field3;
+} Prefix_mystruct;
+
+/* Enum with prefixed name and constants */
+typedef enum Prefix__color {
+  Prefix_Red,
+  Prefix_Green,
+  Prefix_Blue,
+  Other_Color
+} Prefix_color;
+
+/* Union with prefixed name and labels */
+typedef union Prefix__myunion switch(Prefix_color tag) inner {
+  case Prefix_Red: int redval;
+  case Prefix_Green: int greenval;
+  case Prefix_Blue: int blueval;
+  case Other_Color: double colorval;
+} Prefix_myunion;
+
+/* Function with prefix */
+int Prefix_operation([in] int x);
+
+/* Function without prefix (should be unchanged) */
+int other_function([in] int y);
+
+/* Function with explicit mlname (should use mlname, not prefix removal) */
+[mlname(renamed_func)] int Prefix_renamed1([in] int z);
+
+/* Function with prefixed mlname (should use mlname unchanged, even if prefixed) */
+[mlname(prefix_renamed_func)] int Prefix_renamed2([in] int z);
+
+/* Functions using prefixed types in signatures */
+Prefix_mytype Prefix_use_type([in] Prefix_mytype x);
+
+/* Interface with prefixed name */
+[object] interface Prefix_Super : IUnknown {
+  int id();
+}
+
+/* Interface with prefixed name, super, and methods */
+[object] interface Prefix_Intf : Prefix_Super {
+  /* Method with prefix */
+  int Prefix_meth([in] int x);
+
+  /* Method without prefix (should be unchanged) */
+  int other_meth([in] int y);
+
+  /* Method using prefixed types in signatures */
+  Prefix_mytype Prefix_use_type_meth([in] Prefix_mytype x);
+}
+
+/* Function taking interface parameter */
+int Prefix_use_intf([in] Prefix_Super *intf);

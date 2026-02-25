@@ -119,12 +119,12 @@ let rec ml_to_c oc onstack pref ty v c =
       else
         iprintf oc "%s = camlidl_ml2c_%s_enum_%s(%s);\n"
                    c en.en_mod en.en_name v
-  | Type_named(modl, name) ->
-      iprintf oc "camlidl_ml2c_%s_%s(%s, &%s, _ctx);\n" modl name v c;
+  | Type_named{nd_name; nd_mod} ->
+      iprintf oc "camlidl_ml2c_%s_%s(%s, &%s, _ctx);\n" nd_mod nd_name v c;
       need_context := true
-  | Type_pointer(Ref, Type_interface(modl, name)) ->
+  | Type_pointer(Ref, Type_interface{id_name}) ->
       iprintf oc "%s = (struct %s *) camlidl_unpack_interface(%s, _ctx);\n"
-                 c name v;
+                 c id_name v;
       need_context := true
   | Type_pointer(Ref, ty_elt) ->
       let c' = allocate_space oc onstack ty_elt c in
@@ -148,8 +148,8 @@ let rec ml_to_c oc onstack pref ty v c =
       option_ml_to_c oc v c
         (fun v' ->
           Idlarray.bigarray_ml_to_c oc pref attr ty_elt v' c)
-  | Type_interface(modl, name) ->
-      error (sprintf "Reference to interface %s that is not a pointer" name)
+  | Type_interface{id_name} ->
+      error (sprintf "Reference to interface %s that is not a pointer" id_name)
   | Type_const ty' ->
       ml_to_c oc onstack pref ty' v c
 
@@ -199,10 +199,10 @@ let rec c_to_ml oc pref ty c v =
       else
         iprintf oc "%s = camlidl_c2ml_%s_enum_%s(%s);\n"
                    v en.en_mod en.en_name c
-  | Type_named(modl, name) ->
-      iprintf oc "%s = camlidl_c2ml_%s_%s(&%s, _ctx);\n" v modl name c;
+  | Type_named{nd_name; nd_mod} ->
+      iprintf oc "%s = camlidl_c2ml_%s_%s(&%s, _ctx);\n" v nd_mod nd_name c;
       need_context := true
-  | Type_pointer(Ref, Type_interface(modl, name)) ->
+  | Type_pointer(Ref, Type_interface _) ->
       iprintf oc "%s = camlidl_pack_interface(%s, _ctx);\n" v c;
       need_context := true
   | Type_pointer(Ref, ty_elt) ->
@@ -225,8 +225,8 @@ let rec c_to_ml oc pref ty c v =
   | Type_bigarray({bigarray_maybe_null=true} as attr, ty_elt) ->
       option_c_to_ml oc c v
         (Idlarray.bigarray_c_to_ml oc pref attr ty_elt c)
-  | Type_interface(modl, name) ->
-      error (sprintf "Reference to interface %s that is not a pointer" name)
+  | Type_interface{id_name} ->
+      error (sprintf "Reference to interface %s that is not a pointer" id_name)
   | Type_const ty' ->
       c_to_ml oc pref ty' c v
 

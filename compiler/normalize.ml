@@ -67,9 +67,42 @@ type char_class = Narrow | Wide
 let rec classify_char = function
     Type_int((Char | UChar | Byte), _) -> Some Narrow
   | Type_int(UShort, _) -> Some Wide
-  | Type_named(modname, tyname) -> classify_char (expand_typedef tyname)
+  | Type_named{nd_name} -> classify_char (expand_typedef nd_name)
   | Type_const ty -> classify_char ty
   | _ -> None
+
+(* String prefix removal for -remove-prefix option *)
+
+(* case-insensitive variant of String.starts_with *)
+let starts_with_insensitive ~prefix s =
+  let len_s = String.length s
+  and len_pre = String.length prefix in
+  let rec aux i =
+    if i = len_pre then true
+    else if Char.lowercase_ascii (String.get s i) <>
+            Char.lowercase_ascii (String.get prefix i) then false
+    else aux (i + 1)
+  in len_s >= len_pre && aux 0
+
+(* For identifiers that must be lowercase in OCaml *)
+let drop_prefix_uncap name =
+  let prefix = !Clflags.remove_prefix in
+  let prefix_len = String.length prefix in
+  let name' =
+    if prefix_len > 0 && starts_with_insensitive ~prefix name
+    then String.sub name prefix_len (String.length name - prefix_len)
+    else name in
+  String.uncapitalize_ascii name'
+
+(* For variant constructors that must be capitalized in OCaml *)
+let drop_prefix_cap name =
+  let prefix = !Clflags.remove_prefix in
+  let prefix_len = String.length prefix in
+  let name' =
+    if prefix_len > 0 && starts_with_insensitive ~prefix name
+    then String.sub name prefix_len (String.length name - prefix_len)
+    else name in
+  String.capitalize_ascii name'
 
 (* Generic function to handle declarations and definitions of struct,
    unions, enums and interfaces *)
@@ -134,35 +167,44 @@ let rec normalize_type = function
       Type_union(enter_union ud, discr)
   | Type_enum (en, attr) ->
       Type_enum(enter_enum en, attr)
-  | Type_named(_, s) ->
+  | Type_named{nd_name} ->
       begin try
-        let itf = Hashtbl.find intfs s in
-        Type_interface(itf.intf_mod, itf.intf_name)
+        let itf = Hashtbl.find intfs nd_name in
+        Type_interface{id_name=itf.intf_name; id_mlname=itf.intf_mlname;
+                       id_mod=itf.intf_mod}
       with Not_found ->
       try
-        let td = Hashtbl.find typedefs s in
-        Type_named(td.td_mod, td.td_name)
+        let td = Hashtbl.find typedefs nd_name in
+        Type_named{nd_name=td.td_name; nd_mlname=td.td_mlname; nd_mod=td.td_mod}
       with Not_found ->
-        error("Unknown type name " ^ s)
+        error("Unknown type name " ^ nd_name)
       end
   | Type_const ty ->
       Type_const(normalize_type ty)
   | ty -> ty
 
 and normalize_field f =
-  {f with field_typ = normalize_type f.field_typ}
+  let field_mlname =
+    if f.field_mlname = f.field_name
+    then drop_prefix_uncap f.field_mlname
+    else f.field_mlname in
+  {f with field_typ = normalize_type f.field_typ; field_mlname}
+
+and normalize_label l =
+  { l with label_mlname = drop_prefix_cap l.label_name }
 
 and normalize_case c =
+  let labels = List.map normalize_label c.case_labels in
   match c.case_field with
-    None -> c
-  | Some f -> {c with case_field = Some(normalize_field f)}
+    None -> {c with case_labels = labels}
+  | Some f -> {case_labels = labels; case_field = Some(normalize_field f)}
 
 and enter_struct sd =
   process_declarator "struct" structs sd.sd_name sd
     (fun sd -> sd.sd_fields)
     (fun () ->
-      { sd_name = sd.sd_name; sd_mod = !module_name;
-        sd_stamp = 0; sd_fields = [] })
+      { sd_name = sd.sd_name; sd_mlname = drop_prefix_uncap sd.sd_name;
+        sd_mod = !module_name; sd_stamp = 0; sd_fields = [] })
     (fun sd' sd ->
       sd'.sd_stamp <- newstamp();
       sd'.sd_fields <- List.map normalize_field sd.sd_fields)
@@ -173,8 +215,8 @@ and enter_union ud =
   process_declarator "union" unions ud.ud_name ud
     (fun ud -> ud.ud_cases)
     (fun () ->
-      { ud_name = ud.ud_name; ud_mod = !module_name;
-        ud_stamp = 0; ud_cases = [] })
+      { ud_name = ud.ud_name; ud_mlname = drop_prefix_uncap ud.ud_name;
+        ud_mod = !module_name; ud_stamp = 0; ud_cases = [] })
     (fun ud' ud ->
       ud'.ud_stamp <- newstamp();
       ud'.ud_cases <- List.map normalize_case ud.ud_cases)
@@ -182,14 +224,16 @@ and enter_union ud =
       all_comps := Comp_uniondecl ud :: !all_comps)
 
 and enter_enum en =
+  let normalize_const c =
+    { c with const_mlname = drop_prefix_cap c.const_name } in
   process_declarator "enum" enums en.en_name en
     (fun en -> en.en_consts)
     (fun () ->
-      { en_name = en.en_name; en_mod = !module_name;
-        en_stamp = 0; en_consts = [] })
+      { en_name = en.en_name; en_mlname = drop_prefix_uncap en.en_name;
+        en_mod = !module_name; en_stamp = 0; en_consts = [] })
     (fun en' en ->
       en'.en_stamp <- newstamp();
-      en'.en_consts <- en.en_consts)
+      en'.en_consts <- List.map normalize_const en.en_consts)
     (fun en ->
       all_comps := Comp_enumdecl en :: !all_comps)
 
@@ -247,9 +291,14 @@ let rec validate_length_is params mode = function
 let normalize_fundecl fd =
   current_function := fd.fun_name;
   in_fundecl := true;
+  let fun_mlname =
+    if fd.fun_mlname = fd.fun_name
+    then drop_prefix_uncap fd.fun_mlname
+    else fd.fun_mlname in
   let res =
     { fd with
       fun_mod = !module_name;
+      fun_mlname;
       fun_res = normalize_type fd.fun_res;
       fun_params =
         List.map (fun (n, io, ty) -> (n,io, normalize_type ty)) fd.fun_params }
@@ -261,11 +310,13 @@ let normalize_fundecl fd =
   res
 
 let normalize_constdecl cd =
-  { cd with cd_type = normalize_type cd.cd_type }
+  { cd with cd_mlname = drop_prefix_uncap cd.cd_mlname;
+            cd_type = normalize_type cd.cd_type }
   
 let enter_typedecl td =
   let td' =
-    { td with td_mod = !module_name;
+    { td with td_mlname = drop_prefix_uncap td.td_name;
+              td_mod = !module_name;
               td_type = if td.td_abstract
                         then td.td_type
                         else normalize_type td.td_type } in
@@ -276,8 +327,9 @@ let enter_interface i =
   process_declarator "interface" intfs i.intf_name i
     (fun i -> i.intf_methods)
     (fun () ->
-      { intf_name = i.intf_name; intf_mod = !module_name;
-        intf_super = i.intf_super; intf_methods = []; intf_uid = "" })
+      { intf_name = i.intf_name; intf_mlname = drop_prefix_uncap i.intf_name;
+        intf_mod = !module_name; intf_super = i.intf_super;
+        intf_methods = []; intf_uid = "" })
     (fun i' i ->
       let super =
         try

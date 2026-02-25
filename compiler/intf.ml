@@ -24,6 +24,7 @@ open Funct
 
 type interface =
   { intf_name: string;                  (* Name of interface *)
+    intf_mlname: string;                (* ML name *)
     intf_mod: string;                   (* Name of defining module *)
     mutable intf_super: interface;      (* Super-interface *)
     mutable intf_methods: function_decl list;   (* Methods *)
@@ -43,13 +44,13 @@ let out_method_type oc meth =
 (* Print the ML abstract type identifying the interface *)
 
 let ml_declaration oc intf =
-  fprintf oc "%s\n" (String.uncapitalize_ascii intf.intf_name)
+  fprintf oc "%s\n" intf.intf_mlname
 
 (* Declare the class *)
 
 let ml_class_declaration oc intf =
-  let mlintf = String.uncapitalize_ascii intf.intf_name in
-  let mlsuper = String.uncapitalize_ascii intf.intf_super.intf_name in
+  let mlintf = intf.intf_mlname in
+  let mlsuper = intf.intf_super.intf_mlname in
   fprintf oc "class %s_class :\n" mlintf;
   fprintf oc "  %s Com.interface ->\n" mlintf;
   fprintf oc "    object\n";
@@ -58,8 +59,7 @@ let ml_class_declaration oc intf =
   then fprintf oc "      inherit %s_class\n" mlsuper;
   List.iter
     (fun meth ->
-      fprintf oc "      method %s: %a\n"
-                 (String.uncapitalize_ascii meth.fun_name) out_method_type meth)
+      fprintf oc "      method %s: %a\n" meth.fun_mlname out_method_type meth)
     intf.intf_methods;
   fprintf oc "    end\n\n";
   (* Declare the IID *)
@@ -73,7 +73,7 @@ let ml_class_declaration oc intf =
   fprintf oc "val %s_of_%s : %s Com.interface -> %a Com.interface\n\n"
              mlsuper mlintf mlintf
              out_mltype_name (intf.intf_super.intf_mod,
-                              intf.intf_super.intf_name)
+                              intf.intf_super.intf_mlname)
 
 (* Declare the interface in C *)
 
@@ -159,8 +159,8 @@ let c_declaration oc intf =
 (* Define the wrapper classes *)
 
 let ml_class_definition oc intf =
-  let intfname = String.uncapitalize_ascii intf.intf_name in
-  let supername = String.uncapitalize_ascii intf.intf_super.intf_name in
+  let intfname = intf.intf_mlname in
+  let supername = intf.intf_super.intf_mlname in
   (* Define the IID *)
   if intf.intf_uid <> "" then
     fprintf oc "let iid_%s = Com._parse_iid \"%s\"\n"
@@ -169,10 +169,12 @@ let ml_class_definition oc intf =
   fprintf oc "let %s_of_%s (intf : %s Com.interface) = (Obj.magic intf : %a Com.interface)\n\n"
              supername intfname intfname
              out_mltype_name (intf.intf_super.intf_mod,
-                              intf.intf_super.intf_name);
+                              intf.intf_super.intf_mlname);
   (* Declare the C wrappers for invoking the methods from Caml *)
   let self_type =
-    Type_pointer(Ref, Type_interface(!module_name, intf.intf_name)) in
+    Type_pointer(Ref,
+      Type_interface{id_name=intf.intf_name; id_mlname=intf.intf_mlname;
+                     id_mod=(!module_name)}) in
   List.iter
     (fun meth ->
       let prim =
@@ -180,7 +182,7 @@ let ml_class_definition oc intf =
           fun_mod = intf.intf_mod;
           fun_res = meth.fun_res;
           fun_params = ("this", In, self_type) :: meth.fun_params;
-          fun_mlname = None;
+          fun_mlname = sprintf "%s_%s" intf.intf_mlname meth.fun_mlname;
           fun_call = None;
           fun_dealloc = None;
           fun_blocking = false;
@@ -197,9 +199,8 @@ let ml_class_definition oc intf =
                supername supername intfname;
   List.iter
     (fun meth ->
-      let methname = String.uncapitalize_ascii meth.fun_name in
       fprintf oc "    method %s = %s_%s intf\n"
-              methname intfname meth.fun_name)
+              meth.fun_mlname intfname meth.fun_mlname)
     intf.intf_methods;
   fprintf oc "  end\n\n";
   (* Define the conversion functions *)
@@ -264,13 +265,13 @@ let emit_callback_wrapper oc intf meth =
              label (num_ins + 1);
   (* Check if exception occurred *)
   begin match meth.fun_res with
-    Type_named(_, "HRESULT") ->
+    Type_named{nd_name="HRESULT"} ->
       iprintf pc "if (Is_exception_result(_vres))\n";
       iprintf pc "  return camlidl_result_exception(\"%s.%s\", \
                              Extract_exception(_vres));\n"
                  !module_name !current_function;
       iprintf pc "_res = S_OK;\n"
-  | Type_named(_, ("HRESULT_int" | "HRESULT_bool")) ->
+  | Type_named{nd_name=("HRESULT_int" | "HRESULT_bool")} ->
       iprintf pc "if (Is_exception_result(_vres))\n";
       iprintf pc "  return camlidl_result_exception(\"%s.%s\", \
                              Extract_exception(_vres));\n"
@@ -374,7 +375,8 @@ let emit_make_interface oc intf =
 (* Definition of the translation functions *)
 
 let emit_transl oc intf =
-  List.iter (Funct.emit_method_wrapper oc intf.intf_name) intf.intf_methods;
+  List.iter (Funct.emit_method_wrapper oc intf.intf_name intf.intf_mlname)
+    intf.intf_methods;
   List.iter (emit_callback_wrapper oc intf) intf.intf_methods;
   emit_vtable oc intf;
   emit_make_interface oc intf
